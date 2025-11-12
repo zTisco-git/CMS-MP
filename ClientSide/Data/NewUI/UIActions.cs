@@ -28,16 +28,18 @@ public static class UIActions
 	private static GameObject joinUiElementsContainer;
 	private static GameObject joinTitleContainer;
 	private static MainMenuButton joinCancelButton;
+	private static MainMenuButton joinProgressCancelButton;
 	private static object joinProgressCoroutine;
 	private static Action onClientConnectedHandler;
 	private static Action onClientDisconnectedHandler;
 	private static Action hostClientConnectedHandler;
 	private static Action hostClientDisconnectedHandler;
 
-	public static void RegisterJoinUi(MainMenuButton confirmButton, MainMenuButton cancelButton, GameObject uiElementsContainer, GameObject titleContainer, GameObject progressContainer, Image fillImage, Text statusText)
+	public static void RegisterJoinUi(MainMenuButton confirmButton, MainMenuButton cancelButton, MainMenuButton progressCancelButton, GameObject uiElementsContainer, GameObject titleContainer, GameObject progressContainer, Image fillImage, Text statusText)
 	{
 		joinConfirmButton = confirmButton;
 		joinCancelButton = cancelButton;
+		joinProgressCancelButton = progressCancelButton;
 		joinUiElementsContainer = uiElementsContainer;
 		joinTitleContainer = titleContainer;
 		joinProgressContainer = progressContainer;
@@ -45,6 +47,8 @@ public static class UIActions
 		joinStatusText = statusText;
 		if (joinProgressContainer != null)
 			joinProgressContainer.SetActive(false);
+		if (joinProgressCancelButton != null)
+			joinProgressCancelButton.gameObject.SetActive(false);
 		if (joinUiElementsContainer != null)
 			joinUiElementsContainer.SetActive(true);
 		if (joinTitleContainer != null)
@@ -72,6 +76,7 @@ public static class UIActions
 		joinStatusText = null;
 		joinConfirmButton = null;
 		joinCancelButton = null;
+		joinProgressCancelButton = null;
 		joinUiElementsContainer = null;
 		joinTitleContainer = null;
 	}
@@ -124,22 +129,51 @@ public static class UIActions
 			var wasConnecting = isClientConnecting;
 			var wasCancelled = joinCancelled;
 			var errorMessage = wasCancelled ? "Cancelled" : "Connection failed";
+			
+			// Si c'était annulé, remettre immédiatement l'interface visible sans message d'erreur
+			if (wasCancelled)
+			{
+				// Cacher le bouton d'annulation de la barre de progression
+				if (joinProgressCancelButton != null)
+					joinProgressCancelButton.gameObject.SetActive(false);
+				
+				// Cacher la barre de progression
+				if (joinProgressContainer != null)
+					joinProgressContainer.SetActive(false);
+				
+				// Remettre l'interface de connexion visible
+				if (joinTitleContainer != null)
+					joinTitleContainer.SetActive(true);
+				if (joinUiElementsContainer != null)
+					joinUiElementsContainer.SetActive(true);
+				
+				// Réafficher les boutons de l'interface
+				if (joinConfirmButton != null)
+				{
+					joinConfirmButton.gameObject.SetActive(true);
+					joinConfirmButton.SetDisabled(false, true);
+				}
+				if (joinCancelButton != null)
+				{
+					joinCancelButton.gameObject.SetActive(true);
+					joinCancelButton.SetDisabled(false, true);
+				}
+				
+				isClientConnecting = false;
+				joinCancelled = false;
+				return;
+			}
+			
+			// Si ce n'était pas annulé, afficher le message d'erreur
 			CompleteJoinUiState(false, errorMessage);
 			
-	
 			if (wasCancelled || !wasConnecting)
 			{
 				UICore.ShowPanel(UICore.MP_Main);
 			}
 			
-			if (wasConnecting && !wasCancelled)
-			{
-		
-			}
 			if (Server.Instance.isRunning)
 				MelonCoroutines.Start(Server.Instance.CloseServer());
-			
-	
 		};
 		Client.Instance.OnConnected += onClientConnectedHandler;
 		Client.Instance.OnDisconnected += onClientDisconnectedHandler;
@@ -148,13 +182,27 @@ public static class UIActions
 	
 	private static void BeginJoinUiState()
 	{
+		// Cacher le titre
 		if (joinTitleContainer != null)
 			joinTitleContainer.SetActive(false);
+		
+		// Cacher toute l'interface de connexion (y compris tous les boutons)
 		if (joinUiElementsContainer != null)
 			joinUiElementsContainer.SetActive(false);
 		
+		// Cacher les boutons individuellement aussi (pour être sûr)
+		if (joinConfirmButton != null)
+			joinConfirmButton.gameObject.SetActive(false);
+		if (joinCancelButton != null)
+			joinCancelButton.gameObject.SetActive(false);
+		
+		// Afficher la barre de progression avec le bouton d'annulation
 		if (joinProgressContainer != null)
 			joinProgressContainer.SetActive(true);
+		
+		// Afficher le bouton d'annulation dans la barre de progression
+		if (joinProgressCancelButton != null)
+			joinProgressCancelButton.gameObject.SetActive(true);
 		
 		if (joinStatusText != null)
 			joinStatusText.text = "Connecting...";
@@ -179,6 +227,10 @@ public static class UIActions
 		
 		if (success)
 		{
+			// Cacher le bouton d'annulation de la barre de progression
+			if (joinProgressCancelButton != null)
+				joinProgressCancelButton.gameObject.SetActive(false);
+			
 			if (joinProgressContainer != null)
 				joinProgressContainer.SetActive(true);
 			if (joinProgressFill != null)
@@ -188,10 +240,27 @@ public static class UIActions
 		}
 		else
 		{
+			// Cacher le bouton d'annulation de la barre de progression
+			if (joinProgressCancelButton != null)
+				joinProgressCancelButton.gameObject.SetActive(false);
+			
+			// Remettre l'interface de connexion visible
 			if (joinTitleContainer != null)
 				joinTitleContainer.SetActive(true);
 			if (joinUiElementsContainer != null)
 				joinUiElementsContainer.SetActive(true);
+			
+			// Réafficher les boutons de l'interface
+			if (joinConfirmButton != null)
+			{
+				joinConfirmButton.gameObject.SetActive(true);
+				joinConfirmButton.SetDisabled(false, true);
+			}
+			if (joinCancelButton != null)
+			{
+				joinCancelButton.gameObject.SetActive(true);
+				joinCancelButton.SetDisabled(false, true);
+			}
 			
 			if (joinProgressContainer != null)
 				joinProgressContainer.SetActive(true);
@@ -199,9 +268,6 @@ public static class UIActions
 				joinProgressFill.fillAmount = 0f;
 			if (joinStatusText != null)
 				joinStatusText.text = message;
-			
-			if (joinConfirmButton != null)
-				joinConfirmButton.SetDisabled(false, true);
 			
 			MelonCoroutines.Start(HideProgressAfterDelay());
 		}
