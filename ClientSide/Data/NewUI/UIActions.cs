@@ -25,20 +25,30 @@ public static class UIActions
 	private static Image joinProgressFill;
 	private static Text joinStatusText;
 	private static MainMenuButton joinConfirmButton;
+	private static GameObject joinUiElementsContainer;
+	private static GameObject joinTitleContainer;
+	private static MainMenuButton joinCancelButton;
 	private static object joinProgressCoroutine;
 	private static Action onClientConnectedHandler;
 	private static Action onClientDisconnectedHandler;
 	private static Action hostClientConnectedHandler;
 	private static Action hostClientDisconnectedHandler;
 
-	public static void RegisterJoinUi(MainMenuButton confirmButton, GameObject container, Image fillImage, Text statusText)
+	public static void RegisterJoinUi(MainMenuButton confirmButton, MainMenuButton cancelButton, GameObject uiElementsContainer, GameObject titleContainer, GameObject progressContainer, Image fillImage, Text statusText)
 	{
 		joinConfirmButton = confirmButton;
-		joinProgressContainer = container;
+		joinCancelButton = cancelButton;
+		joinUiElementsContainer = uiElementsContainer;
+		joinTitleContainer = titleContainer;
+		joinProgressContainer = progressContainer;
 		joinProgressFill = fillImage;
 		joinStatusText = statusText;
 		if (joinProgressContainer != null)
 			joinProgressContainer.SetActive(false);
+		if (joinUiElementsContainer != null)
+			joinUiElementsContainer.SetActive(true);
+		if (joinTitleContainer != null)
+			joinTitleContainer.SetActive(true);
 		if (joinProgressFill != null)
 		{
 			joinProgressFill.type = Image.Type.Filled;
@@ -61,7 +71,12 @@ public static class UIActions
 		joinProgressFill = null;
 		joinStatusText = null;
 		joinConfirmButton = null;
+		joinCancelButton = null;
+		joinUiElementsContainer = null;
+		joinTitleContainer = null;
 	}
+
+	public static bool IsClientConnecting => isClientConnecting;
 
 	public static void CancelJoinAttempt()
 	{
@@ -108,14 +123,23 @@ public static class UIActions
 		{
 			var wasConnecting = isClientConnecting;
 			var wasCancelled = joinCancelled;
-			CompleteJoinUiState(false, wasCancelled ? "Cancelled" : "Connection failed");
-			UICore.ShowPanel(UICore.MP_Main);
+			var errorMessage = wasCancelled ? "Cancelled" : "Connection failed";
+			CompleteJoinUiState(false, errorMessage);
+			
+	
+			if (wasCancelled || !wasConnecting)
+			{
+				UICore.ShowPanel(UICore.MP_Main);
+			}
+			
 			if (wasConnecting && !wasCancelled)
-				UICustomPanel.CreateInfoPanel("Failed to connect to server !");
+			{
+		
+			}
 			if (Server.Instance.isRunning)
 				MelonCoroutines.Start(Server.Instance.CloseServer());
-			if (!wasConnecting || wasCancelled)
-				ClearJoinUiReferences();
+			
+	
 		};
 		Client.Instance.OnConnected += onClientConnectedHandler;
 		Client.Instance.OnDisconnected += onClientDisconnectedHandler;
@@ -124,10 +148,14 @@ public static class UIActions
 	
 	private static void BeginJoinUiState()
 	{
-		if (joinConfirmButton != null)
-			joinConfirmButton.SetDisabled(true, true);
+		if (joinTitleContainer != null)
+			joinTitleContainer.SetActive(false);
+		if (joinUiElementsContainer != null)
+			joinUiElementsContainer.SetActive(false);
+		
 		if (joinProgressContainer != null)
 			joinProgressContainer.SetActive(true);
+		
 		if (joinStatusText != null)
 			joinStatusText.text = "Connecting...";
 		if (joinProgressFill != null)
@@ -148,15 +176,43 @@ public static class UIActions
 			MelonCoroutines.Stop(joinProgressCoroutine);
 			joinProgressCoroutine = null;
 		}
-		if (joinProgressContainer != null)
-			joinProgressContainer.SetActive(true);
-		if (joinProgressFill != null)
-			joinProgressFill.fillAmount = success ? 1f : 0f;
-		if (joinStatusText != null)
-			joinStatusText.text = message;
-		if (!success && joinConfirmButton != null)
-			joinConfirmButton.SetDisabled(false, true);
+		
+		if (success)
+		{
+			if (joinProgressContainer != null)
+				joinProgressContainer.SetActive(true);
+			if (joinProgressFill != null)
+				joinProgressFill.fillAmount = 1f;
+			if (joinStatusText != null)
+				joinStatusText.text = message;
+		}
+		else
+		{
+			if (joinTitleContainer != null)
+				joinTitleContainer.SetActive(true);
+			if (joinUiElementsContainer != null)
+				joinUiElementsContainer.SetActive(true);
+			
+			if (joinProgressContainer != null)
+				joinProgressContainer.SetActive(true);
+			if (joinProgressFill != null)
+				joinProgressFill.fillAmount = 0f;
+			if (joinStatusText != null)
+				joinStatusText.text = message;
+			
+			if (joinConfirmButton != null)
+				joinConfirmButton.SetDisabled(false, true);
+			
+			MelonCoroutines.Start(HideProgressAfterDelay());
+		}
 		joinCancelled = false;
+	}
+
+	private static IEnumerator HideProgressAfterDelay()
+	{
+		yield return new WaitForSeconds(2f);
+		if (joinProgressContainer != null && !isClientConnecting)
+			joinProgressContainer.SetActive(false);
 	}
 
 	private static IEnumerator JoinProgressAnimation()
