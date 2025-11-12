@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using CMS21Together.ClientSide.Data.Garage;
 using CMS21Together.ClientSide.Data.Garage.Campaign;
 using CMS21Together.ClientSide.Data.Garage.Car;
 using CMS21Together.ClientSide.Data.Garage.Tools;
