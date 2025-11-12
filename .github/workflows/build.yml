@@ -22,13 +22,13 @@ jobs:
       uses: NuGet/setup-nuget@v2
     
     - name: Restore NuGet packages
-      run: nuget restore CMS21Together.csproj
+      run: nuget restore CMS21-Together.csproj
     
     - name: Build Debug
-      run: msbuild CMS21Together.csproj /p:Configuration=Debug /p:Platform=AnyCPU /p:TargetFrameworkVersion=v4.7.2
+      run: msbuild CMS21-Together.csproj /p:Configuration=Debug /p:Platform=AnyCPU /p:TargetFrameworkVersion=v4.7.2
       
     - name: Build Release
-      run: msbuild CMS21Together.csproj /p:Configuration=Release /p:Platform=AnyCPU /p:TargetFrameworkVersion=v4.7.2
+      run: msbuild CMS21-Together.csproj /p:Configuration=Release /p:Platform=AnyCPU /p:TargetFrameworkVersion=v4.7.2
     
     - name: Upload Release DLL
       uses: actions/upload-artifact@v4
