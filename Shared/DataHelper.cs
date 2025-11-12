@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using CMS21Together.Shared.Data.Vanilla;
 using MelonLoader;
 using UnhollowerBaseLib;
 using UnityEngine;
