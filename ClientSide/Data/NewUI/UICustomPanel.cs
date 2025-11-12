@@ -384,7 +384,17 @@ public static class UICustomPanel
 		img.color = new Color(.031f, .027f, .033f, 0.85f);
 
 		
-		var saveTxt = UIElements.CreateText(UICore.TMP_Window.transform, "Join a Lobby", 24);
+		// Créer un conteneur pour le titre et le splitter
+		var titleContainer = new GameObject("JoinTitle");
+		titleContainer.transform.SetParent(UICore.TMP_Window.transform, false);
+		var titleRect = titleContainer.AddComponent<RectTransform>();
+		titleRect.anchorMin = new Vector2(0f, 1f);
+		titleRect.anchorMax = new Vector2(1f, 1f);
+		titleRect.pivot = new Vector2(0.5f, 1f);
+		titleRect.sizeDelta = new Vector2(0, 50);
+		titleRect.anchoredPosition = Vector2.zero;
+		
+		var saveTxt = UIElements.CreateText(titleContainer.transform, "Join a Lobby", 24);
 		var saveTxtRect = saveTxt.GetComponent<RectTransform>();
 		saveTxtRect.anchorMin = new Vector2(0.5f, 1f);
 		saveTxtRect.anchorMax = new Vector2(0.5f, 1f);
@@ -392,9 +402,18 @@ public static class UICustomPanel
 		saveTxtRect.sizeDelta = new Vector2(145, 45);
 		saveTxtRect.anchoredPosition = new Vector2(-118, 0);
 
-		CreateSplitter(UICore.TMP_Window.transform, new Vector2(0, -40), new(390, 2));
+		CreateSplitter(titleContainer.transform, new Vector2(0, -40), new(390, 2));
 		
-		var nameTxt = UIElements.CreateText(UICore.TMP_Window.transform, "Username : ", 22);
+		// Créer un conteneur pour tous les éléments de l'interface de connexion
+		var uiElementsContainer = new GameObject("JoinUIElements");
+		uiElementsContainer.transform.SetParent(UICore.TMP_Window.transform, false);
+		var uiElementsRect = uiElementsContainer.AddComponent<RectTransform>();
+		uiElementsRect.anchorMin = new Vector2(0f, 0f);
+		uiElementsRect.anchorMax = new Vector2(1f, 1f);
+		uiElementsRect.offsetMin = Vector2.zero;
+		uiElementsRect.offsetMax = Vector2.zero;
+		
+		var nameTxt = UIElements.CreateText(uiElementsContainer.transform, "Username : ", 22);
 		var nameTxtRect = nameTxt.GetComponent<RectTransform>();
 		nameTxtRect.anchorMin = new Vector2(0f, 1f);
 		nameTxtRect.anchorMax = new Vector2(0f, 1f);
@@ -402,7 +421,7 @@ public static class UICustomPanel
 		nameTxtRect.sizeDelta = new Vector2(230, 45);
 		nameTxtRect.anchoredPosition = new Vector2(10, -50);
 		
-		var nameField = UIElements.CreateInput(UICore.TMP_Window.transform, ClientData.UserData.username);
+		var nameField = UIElements.CreateInput(uiElementsContainer.transform, ClientData.UserData.username);
 		nameField.transform.parent.GetChild(1).gameObject.SetActive(false);
 		var nameFieldRect = nameField.transform.parent.GetComponent<RectTransform>();
 		nameFieldRect.anchorMin = new Vector2(0f, 1f);
@@ -416,7 +435,7 @@ public static class UICustomPanel
 		nameFieldRect2.sizeDelta = new Vector2(1, 46);
 		nameFieldRect2.anchoredPosition = new Vector2(0, -15);
 		
-		var addressTxt = UIElements.CreateText(UICore.TMP_Window.transform, "Server Address : ", 22);
+		var addressTxt = UIElements.CreateText(uiElementsContainer.transform, "Server Address : ", 22);
 		var addressTxtRect = addressTxt.GetComponent<RectTransform>();
 		addressTxtRect.anchorMin = new Vector2(0f, 1f);
 		addressTxtRect.anchorMax = new Vector2(0f, 1f);
@@ -424,7 +443,7 @@ public static class UICustomPanel
 		addressTxtRect.sizeDelta = new Vector2(230, 45);
 		addressTxtRect.anchoredPosition = new Vector2(10, -150);
 		
-		var addressField = UIElements.CreateInput(UICore.TMP_Window.transform, ClientData.UserData.ip);
+		var addressField = UIElements.CreateInput(uiElementsContainer.transform, ClientData.UserData.ip);
 		addressField.transform.parent.GetChild(1).gameObject.SetActive(false);
 		var addressFieldRect = addressField.transform.parent.GetComponent<RectTransform>();
 		addressFieldRect.anchorMin = new Vector2(0f, 1f);
@@ -438,10 +457,18 @@ public static class UICustomPanel
 		addressFieldRect2.sizeDelta = new Vector2(1, 46);
 		addressFieldRect2.anchoredPosition = new Vector2(0, -15);
 		
-		CreateSplitter(UICore.TMP_Window.transform, new Vector2(0, -260), new(390, 2));
+		CreateSplitter(uiElementsContainer.transform, new Vector2(0, -260), new(390, 2));
 		
-		var backBtn = UIElements.CreateButton(UICore.TMP_Window.transform,
-			"Cancel", (() => { if (UICore.TMP_Window) Object.Destroy(UICore.TMP_Window); }));
+		var backBtn = UIElements.CreateButton(uiElementsContainer.transform,
+			"Cancel", (() => 
+			{ 
+				if (UIActions.IsClientConnecting)
+				{
+					UIActions.CancelJoinAttempt();
+				}
+				else if (UICore.TMP_Window) 
+					Object.Destroy(UICore.TMP_Window); 
+			}));
 		var backRect = backBtn.GetComponent<RectTransform>();
 		backRect.anchorMin = new Vector2(0.5f, 0f);
 		backRect.anchorMax = new Vector2(0.5f, 0f);
@@ -449,7 +476,7 @@ public static class UICustomPanel
 		backRect.sizeDelta = new Vector2(133, 44);
 		backRect.anchoredPosition = new Vector2(-120, 10);
 		
-		var confirmBtn = UIElements.CreateButton(UICore.TMP_Window.transform,
+		var confirmBtn = UIElements.CreateButton(uiElementsContainer.transform,
 			"Confirm", (() =>
 			{
 				if (nameField.text == "")
@@ -514,6 +541,6 @@ public static class UICustomPanel
 		fillImage.fillAmount = 0f;
 
 		progressContainer.SetActive(false);
-		UIActions.RegisterJoinUi(confirmBtn, progressContainer, fillImage, statusText);
+		UIActions.RegisterJoinUi(confirmBtn, backBtn, uiElementsContainer, titleContainer, progressContainer, fillImage, statusText);
 	}
 }
