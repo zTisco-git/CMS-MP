@@ -8,6 +8,7 @@ using CMS21Together.ClientSide.Data;
 using CMS21Together.ServerSide;
 using CMS21Together.ServerSide.Data;
 using CMS21Together.Shared.Data;
+using CMS21Together.Shared.Data.Vanilla;
 using CMS21Together.Shared.Data.Vanilla.Cars;
 using HarmonyLib;
 using MelonLoader;
