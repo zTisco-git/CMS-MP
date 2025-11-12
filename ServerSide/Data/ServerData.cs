@@ -335,6 +335,9 @@ public class ServerData
 						if (details3 != null) details3.Dust = 0;
 					}
 				}
+			}
+		}
+	}
 
 	public void SetLifterState(int carLoaderID, ModLifterState state)
 	{
@@ -395,9 +398,6 @@ public class ServerData
 		var info = GetPlayerInfo(clientData.playerGUID);
 		if (info != null)
 			info.UpdateStats(position, rotation, clientData.playerExp, clientData.playerLevel, clientData.playerSkillPoints);
-	}
-			}
-		}
 	}
 
 	private ModCarPart GetCarPart(int loaderID, string partName)
