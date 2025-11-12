@@ -504,7 +504,7 @@ public static class UICustomPanel
 		progressRect.anchorMin = new Vector2(0.5f, 0f);
 		progressRect.anchorMax = new Vector2(0.5f, 0f);
 		progressRect.pivot = new Vector2(0.5f, 0f);
-		progressRect.sizeDelta = new Vector2(320, 70);
+		progressRect.sizeDelta = new Vector2(320, 120);
 		progressRect.anchoredPosition = new Vector2(0, 70);
 
 		var statusText = UIElements.CreateText(progressContainer.transform, string.Empty, 18, TextAnchor.MiddleCenter);
@@ -518,11 +518,11 @@ public static class UICustomPanel
 		var barBackground = new GameObject("ProgressBackground");
 		barBackground.transform.SetParent(progressContainer.transform, false);
 		var barRect = barBackground.AddComponent<RectTransform>();
-		barRect.anchorMin = new Vector2(0.5f, 0f);
-		barRect.anchorMax = new Vector2(0.5f, 0f);
-		barRect.pivot = new Vector2(0.5f, 0f);
+		barRect.anchorMin = new Vector2(0.5f, 0.5f);
+		barRect.anchorMax = new Vector2(0.5f, 0.5f);
+		barRect.pivot = new Vector2(0.5f, 0.5f);
 		barRect.sizeDelta = new Vector2(300, 18);
-		barRect.anchoredPosition = new Vector2(0, 10);
+		barRect.anchoredPosition = new Vector2(0, 20);
 		var barImage = barBackground.AddComponent<Image>();
 		barImage.color = new Color(1f, 1f, 1f, 0.15f);
 
@@ -540,7 +540,20 @@ public static class UICustomPanel
 		fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
 		fillImage.fillAmount = 0f;
 
+		// Ajouter un bouton "Annuler" dans la barre de progression
+		var progressCancelBtn = UIElements.CreateButton(progressContainer.transform,
+			"Annuler", (() => 
+			{ 
+				UIActions.CancelJoinAttempt();
+			}));
+		var progressCancelRect = progressCancelBtn.GetComponent<RectTransform>();
+		progressCancelRect.anchorMin = new Vector2(0.5f, 0f);
+		progressCancelRect.anchorMax = new Vector2(0.5f, 0f);
+		progressCancelRect.pivot = new Vector2(0.5f, 0f);
+		progressCancelRect.sizeDelta = new Vector2(133, 44);
+		progressCancelRect.anchoredPosition = new Vector2(0, 10);
+
 		progressContainer.SetActive(false);
-		UIActions.RegisterJoinUi(confirmBtn, backBtn, uiElementsContainer, titleContainer, progressContainer, fillImage, statusText);
+		UIActions.RegisterJoinUi(confirmBtn, backBtn, progressCancelBtn, uiElementsContainer, titleContainer, progressContainer, fillImage, statusText);
 	}
 }
