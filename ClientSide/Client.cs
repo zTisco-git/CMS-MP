@@ -140,26 +140,48 @@ public class Client
 	{
 		if (!isConnected) return;
 
-
-		if (!fromServer)
-			ClientSend.DisconnectPacket();
+		if (!fromServer && Client.Instance != null)
+		{
+			try
+			{
+				ClientSend.DisconnectPacket();
+			}
+			catch (Exception ex)
+			{
+				MelonLogger.Warning($"[Client->Disconnect] Error sending disconnect packet: {ex.Message}");
+			}
+		}
+		
 		Application.runInBackground = false;
 		isConnected = false;
 
-
-		tcp.Disconnect();
-		udp.Disconnect();
+		switch (networkType)
+		{
+			case NetworkType.TCP:
+				if (tcp != null)
+					tcp.Disconnect();
+				if (udp != null)
+					udp.Disconnect();
+				break;
+			case NetworkType.Steam:
+				if (steam != null)
+					steam.Close();
+				break;
+		}
 		
 		if (SceneManager.GetActiveScene().name != "Menu")
 		{
 			var manager = NotificationCenter.m_instance;
-			manager.StartCoroutine(manager.SelectSceneToLoad("Menu", SceneType.Menu, true, true));
+			if (manager != null)
+				manager.StartCoroutine(manager.SelectSceneToLoad("Menu", SceneType.Menu, true, true));
 		}
 		else
 			OnDisconnectedInvoke();
 		
 		MelonLogger.Msg("[Client->Disconnect] Disconnected from server.");
-		ApiCalls.API_M2(ContentManager.Instance.ownedContents);
+		
+		if (ContentManager.Instance != null)
+			ApiCalls.API_M2(ContentManager.Instance.ownedContents);
 	}
 
 	public void OnConnectedInvoke()
