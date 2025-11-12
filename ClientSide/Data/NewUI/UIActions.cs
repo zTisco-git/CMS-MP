@@ -25,7 +25,7 @@ public static class UIActions
 	private static Image joinProgressFill;
 	private static Text joinStatusText;
 	private static MainMenuButton joinConfirmButton;
-	private static Coroutine joinProgressCoroutine;
+	private static object joinProgressCoroutine;
 	private static Action onClientConnectedHandler;
 	private static Action onClientDisconnectedHandler;
 	private static Action hostClientConnectedHandler;
