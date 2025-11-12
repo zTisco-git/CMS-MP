@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CMS21Together.Shared.Data.Vanilla;
 using CMS21Together.Shared.Data.Vanilla.GarageTool;
 using Steamworks.Data;
 using UnityEngine.Serialization;
