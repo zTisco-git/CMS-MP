@@ -66,18 +66,18 @@ public static class PartUpdateHooks
 		if (string.IsNullOrEmpty(partID))
 			yield break;
 		
-		var itemsToRemove = Inventory.modItems.Where(i => i.ID == partID).ToList();
+		var itemsToRemove = Player.Inventory.modItems.Where(i => i.ID == partID).ToList();
 		foreach (var modItem in itemsToRemove)
 		{
-			Inventory.modItems.Remove(modItem);
+			Player.Inventory.modItems.Remove(modItem);
 			ClientSend.ItemPacket(modItem, InventoryAction.remove);
 		}
 		
-		var groupsToRemove = Inventory.modGroupItems.Where(g => 
+		var groupsToRemove = Player.Inventory.modGroupItems.Where(g => 
 			g.ItemList != null && g.ItemList.Any(item => item != null && item.ID == partID)).ToList();
 		foreach (var modGroup in groupsToRemove)
 		{
-			Inventory.modGroupItems.Remove(modGroup);
+			Player.Inventory.modGroupItems.Remove(modGroup);
 			ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
 		}
 	}
