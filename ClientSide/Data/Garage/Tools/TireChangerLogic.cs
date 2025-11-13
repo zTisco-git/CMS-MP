@@ -1,6 +1,11 @@
-﻿using CMS21Together.ClientSide.Data.Handle;
+﻿using System.Collections;
+using System.Linq;
+using CMS21Together.ClientSide.Data.Handle;
+using CMS21Together.ClientSide.Data.Player;
+using CMS21Together.Shared.Data;
 using CMS21Together.Shared.Data.Vanilla;
 using HarmonyLib;
+using MelonLoader;
 
 using TireC= TireChangerLogic;
 
@@ -24,6 +29,37 @@ public static class TireChangerLogic
 		if (groupItem == null || groupItem.ItemList.Count == 0) return;
 
 		ClientSend.SetTireChangerPacket(new ModGroupItem(groupItem), instant, connect);
+		
+		if (connect)
+		{
+			MelonCoroutines.Start(RemoveTireItemsFromInventory(groupItem));
+		}
+	}
+
+	private static IEnumerator RemoveTireItemsFromInventory(GroupItem groupItem)
+	{
+		yield return new WaitForEndOfFrame();
+		yield return new WaitForSeconds(0.5f);
+		
+		if (groupItem != null && GameData.Instance != null && GameData.Instance.localInventory != null)
+		{
+			foreach (var item in groupItem.ItemList)
+			{
+				if (item != null && Inventory.modItems.Any(i => i.UID == item.UID))
+				{
+					var modItem = Inventory.modItems.First(i => i.UID == item.UID);
+					Inventory.modItems.Remove(modItem);
+					ClientSend.ItemPacket(modItem, InventoryAction.remove);
+				}
+			}
+			
+			if (Inventory.modGroupItems.Any(i => i.UID == groupItem.UID))
+			{
+				var modGroup = Inventory.modGroupItems.First(i => i.UID == groupItem.UID);
+				Inventory.modGroupItems.Remove(modGroup);
+				ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
+			}
+		}
 	}
 
 	[HarmonyPatch(typeof(PieMenuController), "_GetOnClick_b__72_61")]
