@@ -62,23 +62,64 @@ public static class PartUpdateHooks
 		if (partScript == null || GameData.Instance == null || GameData.Instance.localInventory == null)
 			yield break;
 		
+		if (partScript.IsUnmounted)
+			yield break;
+		
 		var partID = partScript.id;
 		if (string.IsNullOrEmpty(partID))
 			yield break;
 		
-		var itemsToRemove = Player.Inventory.modItems.Where(i => i.ID == partID).ToList();
-		foreach (var modItem in itemsToRemove)
+		var itemsToRemove = new List<ModItem>();
+		foreach (var modItem in Player.Inventory.modItems.ToList())
 		{
-			Player.Inventory.modItems.Remove(modItem);
-			ClientSend.ItemPacket(modItem, InventoryAction.remove);
+			if (modItem.ID == partID)
+			{
+				var gameItem = GameData.Instance.localInventory.items.FirstOrDefault(i => i != null && i.UID == modItem.UID && i.ID == partID);
+				if (gameItem != null)
+				{
+					itemsToRemove.Add(modItem);
+					break;
+				}
+			}
 		}
 		
-		var groupsToRemove = Player.Inventory.modGroupItems.Where(g => 
-			g.ItemList != null && g.ItemList.Any(item => item != null && item.ID == partID)).ToList();
-		foreach (var modGroup in groupsToRemove)
+		if (itemsToRemove.Count == 0)
 		{
-			Player.Inventory.modGroupItems.Remove(modGroup);
-			ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
+			var groupsToRemove = new List<ModGroupItem>();
+			foreach (var modGroup in Player.Inventory.modGroupItems.ToList())
+			{
+				if (modGroup.ItemList != null && modGroup.ItemList.Any(item => item != null && item.ID == partID))
+				{
+					var gameGroup = GameData.Instance.localInventory.groups.FirstOrDefault(g => g != null && g.UID == modGroup.UID);
+					if (gameGroup != null)
+					{
+						var matchingItem = modGroup.ItemList.FirstOrDefault(item => item != null && item.ID == partID);
+						if (matchingItem != null)
+						{
+							var gameItemInGroup = gameGroup.ItemList.FirstOrDefault(i => i != null && i.ID == partID);
+							if (gameItemInGroup != null)
+							{
+								groupsToRemove.Add(modGroup);
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			foreach (var modGroup in groupsToRemove)
+			{
+				Player.Inventory.modGroupItems.Remove(modGroup);
+				ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
+			}
+		}
+		else
+		{
+			foreach (var modItem in itemsToRemove)
+			{
+				Player.Inventory.modItems.Remove(modItem);
+				ClientSend.ItemPacket(modItem, InventoryAction.remove);
+			}
 		}
 	}
 
