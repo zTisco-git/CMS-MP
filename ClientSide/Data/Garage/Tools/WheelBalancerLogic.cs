@@ -29,17 +29,34 @@ public static class WheelBalancerLogic
     public static void StartMiniGameHook(WheelBalanceWindow __instance)
     {
         if(!Client.Instance.isConnected || !listen) {listen = true; return;}
-    }
-
-    [HarmonyPatch(typeof(WheelBalanceWindow), nameof(WheelBalanceWindow.OnMiniGameFinished))]
-    [HarmonyPostfix]
-    public static void OnMiniGameFinishedHook(WheelBalanceWindow __instance)
-    {
-        if(!Client.Instance.isConnected || !listen) {listen = true; return;}
         
-        if (GameData.Instance.wheelBalancer.groupOnWheelBalancer != null)
+        MelonCoroutines.Start(MonitorWheelBalance());
+    }
+    
+    private static IEnumerator MonitorWheelBalance()
+    {
+        yield return new WaitForSeconds(0.5f);
+        
+        while (GameData.Instance != null && GameData.Instance.wheelBalancer != null && 
+               GameData.Instance.wheelBalancer.groupOnWheelBalancer != null)
         {
-            ClientSend.WheelBalancePacket(GameData.Instance.wheelBalancer.groupOnWheelBalancer);
+            bool allBalanced = true;
+            foreach (var item in GameData.Instance.wheelBalancer.groupOnWheelBalancer.ItemList)
+            {
+                if (item != null && item.WheelData != null && !item.WheelData.IsBalanced)
+                {
+                    allBalanced = false;
+                    break;
+                }
+            }
+            
+            if (allBalanced)
+            {
+                ClientSend.WheelBalancePacket(GameData.Instance.wheelBalancer.groupOnWheelBalancer);
+                yield break;
+            }
+            
+            yield return new WaitForSeconds(0.1f);
         }
     }
     
