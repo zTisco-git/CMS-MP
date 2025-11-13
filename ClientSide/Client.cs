@@ -96,6 +96,8 @@ public class Client
 
 			{ (int)PacketTypes.item, ClientHandle.ItemPacket },
 			{ (int)PacketTypes.groupItem, ClientHandle.GroupItemPacket },
+			{ (int)PacketTypes.removeItemByID, ClientHandle.RemoveItemByIDPacket },
+			{ (int)PacketTypes.removeGroupItemByPartID, ClientHandle.RemoveGroupItemByPartIDPacket },
 
 			{ (int)PacketTypes.stat, ClientHandle.StatPacket },
 
