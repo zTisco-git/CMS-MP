@@ -64,9 +64,8 @@ public class UserData
 
 	public void SpawnPlayer()
 	{
-		if (ClientData.Instance.playerPrefab == null)
+		if (ClientData.Instance == null || ClientData.Instance.playerPrefab == null)
 		{
-			MelonLogger.Error("[CMS21-Together] Cannot spawn player: playerPrefab is null.");
 			return;
 		}
 		if (playerID == ClientData.UserData.playerID)
