@@ -19,6 +19,9 @@ public static class LifterLogic
 			return;
 		}
 
+		if (__instance == null || __instance.connectedCarLoader == null)
+			return;
+
 		var action = 0;
 		if (actionType == 0) action = 1;
 		else if (actionType == 1) action = -1;
