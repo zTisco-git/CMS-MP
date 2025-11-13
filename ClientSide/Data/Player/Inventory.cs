@@ -141,11 +141,15 @@ public static class Inventory
 		if (modItems.Any(s => s.UID == item.UID))
 		{
 			var itemToRemove = modItems.First(s => s.UID == item.UID);
-			ClientSend.ItemPacket(itemToRemove, InventoryAction.remove);
 			modItems.Remove(itemToRemove);
-			
-			MelonCoroutines.Start(CheckIfPartMounted(item.ID));
 		}
+		
+
+		var modItemToRemove = new ModItem(item);
+		MelonLogger.Msg($"[Inventory->RemoveItemHook] Sending remove packet for item {item.ID} (UID: {item.UID}) to server.");
+		ClientSend.ItemPacket(modItemToRemove, InventoryAction.remove);
+		
+		MelonCoroutines.Start(CheckIfPartMounted(item.ID));
 	}
 	
 	private static IEnumerator CheckIfPartMounted(string partID)
@@ -186,8 +190,51 @@ public static class Inventory
 		if (modGroupItems.Any(s => s.UID == UId))
 		{
 			var itemToRemove = modGroupItems.First(s => s.UID == UId);
-			ClientSend.GroupItemPacket(itemToRemove, InventoryAction.remove);
 			modGroupItems.Remove(itemToRemove);
+		}
+		
+
+		GroupItem gameGroup = null;
+		if (GameData.Instance != null && GameData.Instance.localInventory != null)
+		{
+			foreach (var group in GameData.Instance.localInventory.groups)
+			{
+				if (group != null && group.UID == UId)
+				{
+					gameGroup = group;
+					break;
+				}
+			}
+		}
+		
+		if (gameGroup != null)
+		{
+			var modGroupToRemove = new ModGroupItem(gameGroup);
+			MelonLogger.Msg($"[Inventory->RemoveGroupItemHook] Sending remove packet for group {gameGroup.ID} (UID: {UId}) to server.");
+			ClientSend.GroupItemPacket(modGroupToRemove, InventoryAction.remove);
+		}
+		else
+		{
+	
+			ModGroupItem existingModGroup = null;
+			foreach (var group in modGroupItems)
+			{
+				if (group != null && group.UID == UId)
+				{
+					existingModGroup = group;
+					break;
+				}
+			}
+			
+			if (existingModGroup != null)
+			{
+				MelonLogger.Msg($"[Inventory->RemoveGroupItemHook] Sending remove packet for group {existingModGroup.ID} (UID: {UId}) to server (from modGroupItems).");
+				ClientSend.GroupItemPacket(existingModGroup, InventoryAction.remove);
+			}
+			else
+			{
+				MelonLogger.Warning($"[Inventory->RemoveGroupItemHook] Group with UID {UId} not found in game inventory or modGroupItems. Cannot send remove packet.");
+			}
 		}
 	}
 
