@@ -55,6 +55,7 @@
         <Compile Include="ClientSide\Data\Garage\Car\PartUpdateHooks.cs"/>
         <Compile Include="ClientSide\Data\Garage\GarageCustomizationSync.cs" />
         <Compile Include="ClientSide\Data\Garage\GarageResync.cs" />
+        <Compile Include="ClientSide\Data\Garage\RadioSync.cs" />
         <Compile Include="ClientSide\Data\Garage\Tools\CarPaintLogic.cs" />
         <Compile Include="ClientSide\Data\Garage\Tools\CarWashLogic.cs" />
         <Compile Include="ClientSide\Data\Garage\Tools\EngineCrane.cs" />
@@ -162,6 +163,7 @@
         <Compile Include="Shared\Data\Vanilla\ModPaintType.cs" />
         <Compile Include="Shared\Data\Vanilla\ModPartInfo.cs" />
         <Compile Include="Shared\Data\Vanilla\ModProfileData.cs" />
+        <Compile Include="Shared\Data\Vanilla\ModRadioData.cs" />
         <Compile Include="Shared\Data\Vanilla\ModStats.cs" />
         <Compile Include="Shared\Data\Vector3Serializable.cs" />
         <Compile Include="Shared\Data\VersionStatus.cs" />
