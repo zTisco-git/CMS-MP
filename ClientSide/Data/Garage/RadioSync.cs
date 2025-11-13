@@ -29,7 +29,7 @@ public static class RadioSync
 
 		if (Time.time < nextCheck)
 			return;
-		nextCheck = Time.time + 0.5f;
+		nextCheck = Time.time + 0.1f;
 
 		var current = GetCurrentRadioData();
 		if (current == null)
