@@ -154,8 +154,18 @@ public static class ServerHandle
 			}
 			else if (action == InventoryAction.remove)
 			{
+				var wasRemoved = false;
 				if (ServerData.Instance.items.ContainsKey(item.UID))
+				{
 					ServerData.Instance.items.Remove(item.UID);
+					wasRemoved = true;
+					MelonLogger.Msg($"[ServerHandle->ItemPacket] Removed item {item.ID} (UID: {item.UID}) from server inventory.");
+				}
+				else
+				{
+					MelonLogger.Msg($"[ServerHandle->ItemPacket] Item {item.ID} (UID: {item.UID}) not found in server inventory, but broadcasting remove to all clients anyway.");
+				}
+				MelonLogger.Msg($"[ServerHandle->ItemPacket] Broadcasting remove packet for item {item.ID} (UID: {item.UID}) to all clients.");
 				ServerSend.ItemPacket(fromClient, item, InventoryAction.remove);
 			}
 			return;
@@ -183,8 +193,18 @@ public static class ServerHandle
 			}
 			else if (action == InventoryAction.remove)
 			{
+				var wasRemoved = false;
 				if (ServerData.Instance.groupItems.ContainsKey(item.UID))
+				{
 					ServerData.Instance.groupItems.Remove(item.UID);
+					wasRemoved = true;
+					MelonLogger.Msg($"[ServerHandle->GroupItemPacket] Removed group {item.ID} (UID: {item.UID}) from server inventory.");
+				}
+				else
+				{
+					MelonLogger.Msg($"[ServerHandle->GroupItemPacket] Group {item.ID} (UID: {item.UID}) not found in server inventory, but broadcasting remove to all clients anyway.");
+				}
+				MelonLogger.Msg($"[ServerHandle->GroupItemPacket] Broadcasting remove packet for group {item.ID} (UID: {item.UID}) to all clients.");
 				ServerSend.GroupItemPacket(fromClient, item, InventoryAction.remove);
 			}
 			return;

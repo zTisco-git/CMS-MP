@@ -21,6 +21,7 @@ public static class Inventory
 	public static List<ModItem> modItems = new();
 	public static List<ModGroupItem> modGroupItems = new();
 	private static bool loadSkip;
+	private static bool isHandlingRemoteRemove = false; // Flag to prevent RemoveItemHook from sending packets when HandleItem calls Delete
 
 	public static void Reset()
 	{
@@ -135,16 +136,25 @@ public static class Inventory
 		if (!Client.Instance.isConnected) {return;}
 
 		if (item == null) return;
+		
+		// Don't send packet if this is a remote remove (from HandleItem)
+		if (isHandlingRemoteRemove)
+		{
+			MelonLogger.Msg($"[Inventory->RemoveItemHook] Item {item.ID} (UID: {item.UID}) is being deleted as part of remote remove, skipping packet send.");
+			return;
+		}
 
 		MelonLogger.Msg($"[Inventory->RemoveItemHook] Item {item.ID} (UID: {item.UID}) is being deleted from inventory. Checking if part is being mounted...");
 		
+		// Remove from modItems if it exists
 		if (modItems.Any(s => s.UID == item.UID))
 		{
 			var itemToRemove = modItems.First(s => s.UID == item.UID);
 			modItems.Remove(itemToRemove);
 		}
 		
-
+		// Always send remove packet to server, even if item wasn't in modItems
+		// This ensures that items added by other players are also removed from server
 		var modItemToRemove = new ModItem(item);
 		MelonLogger.Msg($"[Inventory->RemoveItemHook] Sending remove packet for item {item.ID} (UID: {item.UID}) to server.");
 		ClientSend.ItemPacket(modItemToRemove, InventoryAction.remove);
@@ -186,7 +196,15 @@ public static class Inventory
 	public static void RemoveGroupItemHook(long UId)
 	{
 		if (!Client.Instance.isConnected ) {return;}
+		
+		// Don't send packet if this is a remote remove (from HandleGroupItem)
+		if (isHandlingRemoteRemove)
+		{
+			MelonLogger.Msg($"[Inventory->RemoveGroupItemHook] Group with UID {UId} is being deleted as part of remote remove, skipping packet send.");
+			return;
+		}
 
+		// Remove from modGroupItems if it exists
 		if (modGroupItems.Any(s => s.UID == UId))
 		{
 			var itemToRemove = modGroupItems.First(s => s.UID == UId);
@@ -321,7 +339,15 @@ public static class Inventory
 				break;
 			case InventoryAction.remove:
 				if (item == null) yield break;
-				modItems.RemoveAll(i => i.UID == item.UID);
+				MelonLogger.Msg($"[Inventory->HandleItem] Removing item {item.ID} (UID: {item.UID}) from inventory.");
+				
+				var removedFromModItems = modItems.RemoveAll(i => i.UID == item.UID);
+				if (removedFromModItems > 0)
+				{
+					MelonLogger.Msg($"[Inventory->HandleItem] Removed {removedFromModItems} item(s) from modItems.");
+				}
+				
+		
 				Item itemToDelete = null;
 				foreach (var invItem in GameData.Instance.localInventory.items)
 				{
@@ -333,7 +359,15 @@ public static class Inventory
 				}
 				if (itemToDelete != null)
 				{
+					MelonLogger.Msg($"[Inventory->HandleItem] Deleting item {itemToDelete.ID} (UID: {itemToDelete.UID}) from game inventory.");
+					isHandlingRemoteRemove = true; // Prevent RemoveItemHook from sending packet
 					GameData.Instance.localInventory.Delete(itemToDelete);
+					isHandlingRemoteRemove = false;
+					MelonLogger.Msg($"[Inventory->HandleItem] Item {item.ID} (UID: {item.UID}) removed successfully. Total items in modItems: {modItems.Count}, game inventory count: {GameData.Instance.localInventory.items.Count}");
+				}
+				else
+				{
+					MelonLogger.Msg($"[Inventory->HandleItem] Item {item.ID} (UID: {item.UID}) not found in game inventory. It may have already been removed.");
 				}
 				break;
 		}
@@ -366,7 +400,15 @@ public static class Inventory
 				break;
 			case InventoryAction.remove:
 				if (item == null) yield break;
-				modGroupItems.RemoveAll(i => i.UID == item.UID);
+				MelonLogger.Msg($"[Inventory->HandleGroupItem] Removing group {item.ID} (UID: {item.UID}) from inventory.");
+				
+				var removedFromModGroupItems = modGroupItems.RemoveAll(i => i.UID == item.UID);
+				if (removedFromModGroupItems > 0)
+				{
+					MelonLogger.Msg($"[Inventory->HandleGroupItem] Removed {removedFromModGroupItems} group(s) from modGroupItems.");
+				}
+				
+			
 				GroupItem groupToDelete = null;
 				foreach (var group in GameData.Instance.localInventory.groups)
 				{
@@ -378,7 +420,15 @@ public static class Inventory
 				}
 				if (groupToDelete != null)
 				{
+					MelonLogger.Msg($"[Inventory->HandleGroupItem] Deleting group {groupToDelete.ID} (UID: {groupToDelete.UID}) from game inventory.");
+					isHandlingRemoteRemove = true; // Prevent RemoveGroupItemHook from sending packet
 					GameData.Instance.localInventory.DeleteGroup(item.UID);
+					isHandlingRemoteRemove = false;
+					MelonLogger.Msg($"[Inventory->HandleGroupItem] Group {item.ID} (UID: {item.UID}) removed successfully. Total groups in modGroupItems: {modGroupItems.Count}, game inventory groups count: {GameData.Instance.localInventory.groups.Count}");
+				}
+				else
+				{
+					MelonLogger.Msg($"[Inventory->HandleGroupItem] Group {item.ID} (UID: {item.UID}) not found in game inventory. It may have already been removed.");
 				}
 				break;
 		}
