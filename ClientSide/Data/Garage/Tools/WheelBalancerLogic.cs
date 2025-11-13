@@ -25,36 +25,22 @@ public static class WheelBalancerLogic
     }
     
     [HarmonyPatch(typeof(WheelBalanceWindow), nameof(WheelBalanceWindow.StartMiniGame))]
-    [HarmonyPrefix]
-    public static bool StartMiniGameHook(WheelBalanceWindow __instance)
+    [HarmonyPostfix]
+    public static void StartMiniGameHook(WheelBalanceWindow __instance)
     {
-        if(!Client.Instance.isConnected || !listen) {listen = true; return true;}
-                
-        MelonCoroutines.Start(BalanceWheel(__instance));
-        __instance.CancelAction();
-        return false;
+        if(!Client.Instance.isConnected || !listen) {listen = true; return;}
     }
 
-    private static IEnumerator BalanceWheel(WheelBalanceWindow instance)
+    [HarmonyPatch(typeof(WheelBalanceWindow), nameof(WheelBalanceWindow.OnMiniGameFinished))]
+    [HarmonyPostfix]
+    public static void OnMiniGameFinishedHook(WheelBalanceWindow __instance)
     {
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForSeconds(0.1f);
-        foreach (Item item in GameData.Instance.wheelBalancer.groupOnWheelBalancer.ItemList)
+        if(!Client.Instance.isConnected || !listen) {listen = true; return;}
+        
+        if (GameData.Instance.wheelBalancer.groupOnWheelBalancer != null)
         {
-            item.WheelData = new WheelData()
-            {
-                ET = item.WheelData.ET,
-                Profile = item.WheelData.Profile,
-                Width = item.WheelData.Width,
-                Size = item.WheelData.Size,
-                IsBalanced = true
-            };
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
-            GameData.Instance.wheelBalancer.balanceCanceled = false;
+            ClientSend.WheelBalancePacket(GameData.Instance.wheelBalancer.groupOnWheelBalancer);
         }
-
-        ClientSend.WheelBalancePacket(GameData.Instance.wheelBalancer.groupOnWheelBalancer);
     }
     
     [HarmonyPatch(typeof(PieMenuController), "_GetOnClick_b__72_64")]
