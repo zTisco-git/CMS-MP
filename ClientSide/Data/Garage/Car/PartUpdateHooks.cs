@@ -1,9 +1,11 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using CMS21Together.ClientSide.Data.Garage.Tools;
 using CMS21Together.ClientSide.Data.Handle;
 using CMS21Together.ClientSide.Data.Player;
 using CMS21Together.Shared.Data;
+using CMS21Together.Shared.Data.Vanilla;
 using CMS21Together.Shared.Data.Vanilla.Cars;
 using CMS21Together.Shared.Data.Vanilla.GarageTool;
 using HarmonyLib;
@@ -74,7 +76,15 @@ public static class PartUpdateHooks
 		{
 			if (modItem.ID == partID)
 			{
-				var gameItem = GameData.Instance.localInventory.items.FirstOrDefault(i => i != null && i.UID == modItem.UID && i.ID == partID);
+				Item gameItem = null;
+				foreach (var invItem in GameData.Instance.localInventory.items)
+				{
+					if (invItem != null && invItem.UID == modItem.UID && invItem.ID == partID)
+					{
+						gameItem = invItem;
+						break;
+					}
+				}
 				if (gameItem != null)
 				{
 					itemsToRemove.Add(modItem);
@@ -90,14 +100,30 @@ public static class PartUpdateHooks
 			{
 				if (modGroup.ItemList != null && modGroup.ItemList.Any(item => item != null && item.ID == partID))
 				{
-					var gameGroup = GameData.Instance.localInventory.groups.FirstOrDefault(g => g != null && g.UID == modGroup.UID);
+					GroupItem gameGroup = null;
+					foreach (var group in GameData.Instance.localInventory.groups)
+					{
+						if (group != null && group.UID == modGroup.UID)
+						{
+							gameGroup = group;
+							break;
+						}
+					}
 					if (gameGroup != null)
 					{
 						var matchingItem = modGroup.ItemList.FirstOrDefault(item => item != null && item.ID == partID);
 						if (matchingItem != null)
 						{
-							var gameItemInGroup = gameGroup.ItemList.FirstOrDefault(i => i != null && i.ID == partID);
-							if (gameItemInGroup != null)
+							bool foundInGroup = false;
+							foreach (var i in gameGroup.ItemList)
+							{
+								if (i != null && i.ID == partID)
+								{
+									foundInGroup = true;
+									break;
+								}
+							}
+							if (foundInGroup)
 							{
 								groupsToRemove.Add(modGroup);
 								break;
