@@ -6,6 +6,7 @@ using CMS21Together.Shared.Data;
 using CMS21Together.Shared.Data.Vanilla;
 using HarmonyLib;
 using MelonLoader;
+using UnityEngine;
 
 using TireC= TireChangerLogic;
 
@@ -45,18 +46,18 @@ public static class TireChangerLogic
 		{
 			foreach (var item in groupItem.ItemList)
 			{
-				if (item != null && Inventory.modItems.Any(i => i.UID == item.UID))
+				if (item != null && Player.Inventory.modItems.Any(i => i.UID == item.UID))
 				{
-					var modItem = Inventory.modItems.First(i => i.UID == item.UID);
-					Inventory.modItems.Remove(modItem);
+					var modItem = Player.Inventory.modItems.First(i => i.UID == item.UID);
+					Player.Inventory.modItems.Remove(modItem);
 					ClientSend.ItemPacket(modItem, InventoryAction.remove);
 				}
 			}
 			
-			if (Inventory.modGroupItems.Any(i => i.UID == groupItem.UID))
+			if (Player.Inventory.modGroupItems.Any(i => i.UID == groupItem.UID))
 			{
-				var modGroup = Inventory.modGroupItems.First(i => i.UID == groupItem.UID);
-				Inventory.modGroupItems.Remove(modGroup);
+				var modGroup = Player.Inventory.modGroupItems.First(i => i.UID == groupItem.UID);
+				Player.Inventory.modGroupItems.Remove(modGroup);
 				ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
 			}
 		}
