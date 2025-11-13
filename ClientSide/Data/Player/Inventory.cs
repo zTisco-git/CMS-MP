@@ -197,13 +197,23 @@ public static class Inventory
 				if (item == null) yield break;
 				modItems.RemoveAll(i => i.UID == item.UID);
 				modItems.Add(item);
-				GameData.Instance.localInventory.Delete(item.ToGame());
-				GameData.Instance.localInventory.Add(item.ToGame());
+				
+				var gameItem = item.ToGame();
+				var existingItem = GameData.Instance.localInventory.items.FirstOrDefault(i => i != null && i.UID == item.UID);
+				if (existingItem != null)
+				{
+					GameData.Instance.localInventory.Delete(existingItem);
+				}
+				GameData.Instance.localInventory.Add(gameItem);
 				break;
 			case InventoryAction.remove:
 				if (item == null) yield break;
 				modItems.RemoveAll(i => i.UID == item.UID);
-				GameData.Instance.localInventory.Delete(item.ToGame());
+				var itemToDelete = GameData.Instance.localInventory.items.FirstOrDefault(i => i != null && i.UID == item.UID);
+				if (itemToDelete != null)
+				{
+					GameData.Instance.localInventory.Delete(itemToDelete);
+				}
 				break;
 		}
 	}
@@ -216,14 +226,23 @@ public static class Inventory
 			case InventoryAction.add:
 				if (item == null) yield break;
 				modGroupItems.RemoveAll(i => i.UID == item.UID);
-				GameData.Instance.localInventory.DeleteGroup(item.UID);
+				
+				var existingGroup = GameData.Instance.localInventory.groups.FirstOrDefault(g => g != null && g.UID == item.UID);
+				if (existingGroup != null)
+				{
+					GameData.Instance.localInventory.DeleteGroup(item.UID);
+				}
 				modGroupItems.Add(item);
 				GameData.Instance.localInventory.AddGroup(item.ToGame());
 				break;
 			case InventoryAction.remove:
 				if (item == null) yield break;
 				modGroupItems.RemoveAll(i => i.UID == item.UID);
-				GameData.Instance.localInventory.DeleteGroup(item.UID);
+				var groupToDelete = GameData.Instance.localInventory.groups.FirstOrDefault(g => g != null && g.UID == item.UID);
+				if (groupToDelete != null)
+				{
+					GameData.Instance.localInventory.DeleteGroup(item.UID);
+				}
 				break;
 		}
 	}
