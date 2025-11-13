@@ -44,10 +44,21 @@ public static class WheelBalancer
                 bool allBalanced = true;
                 foreach (var item in GameData.Instance.wheelBalancer.groupOnWheelBalancer.ItemList)
                 {
-                    if (item != null && item.WheelData != null && !item.WheelData.IsBalanced)
+                    if (item != null)
                     {
-                        allBalanced = false;
-                        break;
+                        try
+                        {
+                            if (!item.WheelData.IsBalanced)
+                            {
+                                allBalanced = false;
+                                break;
+                            }
+                        }
+                        catch
+                        {
+                            allBalanced = false;
+                            break;
+                        }
                     }
                 }
                 
