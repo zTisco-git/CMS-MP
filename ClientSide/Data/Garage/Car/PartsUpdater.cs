@@ -243,8 +243,17 @@ public static class PartsUpdater
 				yield return new WaitForSeconds(0.25f);
 		yield return new WaitForEndOfFrame();
 
+		if (GameData.Instance == null || GameData.Instance.carLoaders == null)
+			yield break;
+		
+		if (carLoaderID < 0 || carLoaderID >= GameData.Instance.carLoaders.Length)
+			yield break;
+		
+		var carLoader = GameData.Instance.carLoaders[carLoaderID];
+		if (carLoader == null || carLoader.FluidsData == null || fluid == null || fluid.CarFluid == null)
+			yield break;
+
 		PartUpdateHooks.listen = false;
-		GameData.Instance.carLoaders[carLoaderID].FluidsData
-			.SetLevelAndCondition(fluid.Level, fluid.Condition, (CarFluidType)fluid.CarFluid.FluidType);
+		carLoader.FluidsData.SetLevelAndCondition(fluid.Level, fluid.Condition, (CarFluidType)fluid.CarFluid.FluidType);
 	}
 }
