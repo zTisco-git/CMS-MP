@@ -537,4 +537,5 @@ public class ModCarInfo
 	public Dictionary<int, ModPartScript> EnginePartsReferences = new();
 	public Dictionary<int, Dictionary<int, ModPartScript>> OtherPartsReferences = new();
 	public Dictionary<int, Dictionary<int, ModPartScript>> SuspensionPartsReferences = new();
+	public ModFluidsData FluidsData;
 }
