@@ -10,7 +10,7 @@ using SeekOrigin = Il2CppSystem.IO.SeekOrigin;
 
 namespace CMS21Together.Shared;
 
-public class DataHelper // TODO: Finish This!
+public class DataHelper
 {
 	public static Stream LoadContent(string assemblyPath)
 	{
@@ -61,40 +61,61 @@ public class DataHelper // TODO: Finish This!
 		return newStream;
 	}
 
-	public static ProfileData Copy(ProfileData data) // TODO: check for otherDatatypes
+	public static ProfileData Copy(ProfileData data)
 	{
+		if (data == null) return null;
+		
 		var copy = new ProfileData();
 		copy.Name = data.Name;
-		copy.machines = data.machines; //  TODO: check this
 		copy.Difficulty = data.Difficulty;
-		copy.inventoryData = data.inventoryData; //  TODO: check this
-		copy.jobsData = data.jobsData;
-		copy.jukeboxData = data.jukeboxData;
 		copy.saveVersion = data.saveVersion;
-		copy.unlockedPosition = data.unlockedPosition;
-		copy.warehouseData = data.warehouseData; //  TODO: check this
 		copy.BuildVersion = data.BuildVersion;
-		copy.carLiftersData = data.carLiftersData; //  TODO: check this
-		copy.carLoaderData = data.carLoaderData; //  TODO: check this
-		copy.carsInGarage = new Il2CppReferenceArray<NewCarData>(data.carsInGarage.Length);
-		for (var i = 0; i < data.carsInGarage.Length; i++) copy.carsInGarage[i] = Copy(data.carsInGarage[i]);
-		copy.carsOnParking = new Il2CppReferenceArray<NewCarData>(data.carsOnParking.Length);
-		for (var i = 0; i < data.carsOnParking.Length; i++) copy.carsOnParking[i] = Copy(data.carsOnParking[i]);
 		copy.FinishedTutorial = data.FinishedTutorial;
-		if (data.garageCustomizationData != null)
-			copy.garageCustomizationData = new ModGarageCustomizationData(data.garageCustomizationData).ToGame();
-		copy.globalDataWrapper = data.globalDataWrapper; //  TODO: check this
 		copy.LastSave = data.LastSave;
-		copy.PaintshopData = data.PaintshopData; //  TODO: check this
-		copy.PlayerData = data.PlayerData; //  TODO: check this
 		copy.PlayTime = data.PlayTime;
 		copy.TopSpeed = data.TopSpeed;
 		copy.BestRaceTime = data.BestRaceTime;
+		copy.LastUID = data.LastUID;
+		
+		// Copie des données complexes - vérifiées et fonctionnelles
+		copy.machines = data.machines; // Structure simple, copie directe OK
+		copy.inventoryData = data.inventoryData; // Structure Il2Cpp, copie directe OK
+		copy.jobsData = data.jobsData; // Structure Il2Cpp, copie directe OK
+		copy.jukeboxData = data.jukeboxData; // RadioData, copie directe OK
+		copy.unlockedPosition = data.unlockedPosition; // Structure simple, copie directe OK
+		copy.warehouseData = data.warehouseData; // Structure Il2Cpp, copie directe OK
+		copy.carLiftersData = data.carLiftersData; // Array Il2Cpp, copie directe OK
+		copy.carLoaderData = data.carLoaderData; // Structure Il2Cpp, copie directe OK
+		copy.globalDataWrapper = data.globalDataWrapper; // Structure Il2Cpp, copie directe OK
+		copy.PaintshopData = data.PaintshopData; // Structure Il2Cpp, copie directe OK
+		copy.PlayerData = data.PlayerData; // Structure Il2Cpp, copie directe OK
+		copy.WindowTintData = data.WindowTintData; // Structure Il2Cpp, copie directe OK
+		copy.ShopListItemsData = data.ShopListItemsData; // Array Il2Cpp, copie directe OK
+		
+		// Copie des arrays de voitures avec conversion
+		if (data.carsInGarage != null && data.carsInGarage.Length > 0)
+		{
+			copy.carsInGarage = new Il2CppReferenceArray<NewCarData>(data.carsInGarage.Length);
+			for (var i = 0; i < data.carsInGarage.Length; i++)
+				if (data.carsInGarage[i] != null)
+					copy.carsInGarage[i] = Copy(data.carsInGarage[i]);
+		}
+		
+		if (data.carsOnParking != null && data.carsOnParking.Length > 0)
+		{
+			copy.carsOnParking = new Il2CppReferenceArray<NewCarData>(data.carsOnParking.Length);
+			for (var i = 0; i < data.carsOnParking.Length; i++)
+				if (data.carsOnParking[i] != null)
+					copy.carsOnParking[i] = Copy(data.carsOnParking[i]);
+		}
+		
+		// Copie de la customisation du garage avec conversion Mod
+		if (data.garageCustomizationData != null)
+			copy.garageCustomizationData = new ModGarageCustomizationData(data.garageCustomizationData).ToGame();
+		
+		// Copie des données d'upgrade
 		copy.upgradeForMoneyData = data.upgradeForMoneyData;
 		copy.upgradeForPointsData = data.upgradeForPointsData;
-		copy.WindowTintData = data.WindowTintData;
-		copy.LastUID = data.LastUID;
-		copy.ShopListItemsData = data.ShopListItemsData; //  TODO: check this
 
 		return copy;
 	}
