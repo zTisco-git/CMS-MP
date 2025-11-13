@@ -139,6 +139,9 @@ public static class UILobby
 
 	public static GameObject AddPlayer(string username="Waiting for player...", int index=1)
 	{
+		if (UICore.TMP_Window == null || UICore.TMP_Window.transform == null)
+			return null;
+		
 		int pos = 10 - ((index - 1) * 59);
 		
 		GameObject player = new GameObject("PlayerPanel");
@@ -184,6 +187,9 @@ public static class UILobby
 
 	public static void RefreshPlayers()
 	{
+		if (UICore.TMP_Window == null)
+			return;
+		
 		DeleteAllPlayer();
 		int i = 0;
 
