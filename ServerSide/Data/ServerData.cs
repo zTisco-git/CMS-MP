@@ -225,7 +225,94 @@ public class ServerData
 
 	public void UpdateFluid(ModFluidData fluid, int carLoaderID)
 	{
-		//MelonLogger.Msg("Not implemented..."); TODO: Implement this
+		if (!CarPartInfo.ContainsKey(carLoaderID))
+			CarPartInfo.Add(carLoaderID, new ModCarInfo());
+
+		var carInfo = CarPartInfo[carLoaderID];
+		if (carInfo.FluidsData == null)
+		{
+			carInfo.FluidsData = new ModFluidsData();
+		}
+
+		// Mettre à jour le bon fluide selon le type
+		if (fluid?.CarFluid != null)
+		{
+			switch (fluid.CarFluid.FluidType)
+			{
+				case ModCarFluidType.EngineOil:
+					carInfo.FluidsData.Oil = fluid;
+					break;
+				case ModCarFluidType.Brake:
+					if (carInfo.FluidsData.Brake == null)
+						carInfo.FluidsData.Brake = new System.Collections.Generic.List<ModFluidData>();
+					// Trouver et mettre à jour ou ajouter le fluide de frein
+					var brakeIndex = -1;
+					for (int i = 0; i < carInfo.FluidsData.Brake.Count; i++)
+					{
+						if (carInfo.FluidsData.Brake[i]?.CarFluid?.ID == fluid.CarFluid.ID)
+						{
+							brakeIndex = i;
+							break;
+						}
+					}
+					if (brakeIndex >= 0)
+						carInfo.FluidsData.Brake[brakeIndex] = fluid;
+					else
+						carInfo.FluidsData.Brake.Add(fluid);
+					break;
+				case ModCarFluidType.EngineCoolant:
+					if (carInfo.FluidsData.EngineCoolant == null)
+						carInfo.FluidsData.EngineCoolant = new System.Collections.Generic.List<ModFluidData>();
+					var coolantIndex = -1;
+					for (int i = 0; i < carInfo.FluidsData.EngineCoolant.Count; i++)
+					{
+						if (carInfo.FluidsData.EngineCoolant[i]?.CarFluid?.ID == fluid.CarFluid.ID)
+						{
+							coolantIndex = i;
+							break;
+						}
+					}
+					if (coolantIndex >= 0)
+						carInfo.FluidsData.EngineCoolant[coolantIndex] = fluid;
+					else
+						carInfo.FluidsData.EngineCoolant.Add(fluid);
+					break;
+				case ModCarFluidType.PowerSteering:
+					if (carInfo.FluidsData.PowerSteering == null)
+						carInfo.FluidsData.PowerSteering = new System.Collections.Generic.List<ModFluidData>();
+					var psIndex = -1;
+					for (int i = 0; i < carInfo.FluidsData.PowerSteering.Count; i++)
+					{
+						if (carInfo.FluidsData.PowerSteering[i]?.CarFluid?.ID == fluid.CarFluid.ID)
+						{
+							psIndex = i;
+							break;
+						}
+					}
+					if (psIndex >= 0)
+						carInfo.FluidsData.PowerSteering[psIndex] = fluid;
+					else
+						carInfo.FluidsData.PowerSteering.Add(fluid);
+					break;
+				case ModCarFluidType.WindscreenWash:
+					if (carInfo.FluidsData.WindscreenWash == null)
+						carInfo.FluidsData.WindscreenWash = new System.Collections.Generic.List<ModFluidData>();
+					var washIndex = -1;
+					for (int i = 0; i < carInfo.FluidsData.WindscreenWash.Count; i++)
+					{
+						if (carInfo.FluidsData.WindscreenWash[i]?.CarFluid?.ID == fluid.CarFluid.ID)
+						{
+							washIndex = i;
+							break;
+						}
+					}
+					if (washIndex >= 0)
+						carInfo.FluidsData.WindscreenWash[washIndex] = fluid;
+					else
+						carInfo.FluidsData.WindscreenWash.Add(fluid);
+					break;
+			}
+		}
 	}
 
 	public void SetEngineOnStand(ModGroupItem engineGroup, Vector3Serializable position, bool alt)
