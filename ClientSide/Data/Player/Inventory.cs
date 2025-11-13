@@ -97,11 +97,22 @@ public static class Inventory
 	public static void AddItemHook(Item item, bool showPopup = false)
 	{
 		if (!Client.Instance.isConnected) {return;}
-		if (modItems.Any(i => i.UID == item.UID)) return;
+		
+		if (modItems.Any(i => i.UID == item.UID))
+		{
+			MelonLogger.Msg($"[Inventory->AddItemHook] Item {item.ID} (UID: {item.UID}) already exists in modItems, skipping.");
+			return;
+		}
 		
 		MelonLogger.Msg($"[Inventory->AddItemHook] Adding item to inventory: ID={item.ID}, UID={item.UID}");
 		var newItem = new ModItem(item);
+		if (newItem == null)
+		{
+			MelonLogger.Warning($"[Inventory->AddItemHook] Failed to create ModItem from Item {item.ID} (UID: {item.UID})");
+			return;
+		}
 		modItems.Add(newItem);
+		MelonLogger.Msg($"[Inventory->AddItemHook] Sending item {newItem.ID} (UID: {newItem.UID}) to server.");
 		ClientSend.ItemPacket(newItem, InventoryAction.add);
 	}
 
@@ -236,6 +247,12 @@ public static class Inventory
 				modItems.Add(item);
 				
 				var gameItem = item.ToGame();
+				if (gameItem == null)
+				{
+					MelonLogger.Warning($"[Inventory->HandleItem] Failed to convert ModItem {item.ID} (UID: {item.UID}) to game item.");
+					yield break;
+				}
+				
 				Item existingItem = null;
 				foreach (var invItem in GameData.Instance.localInventory.items)
 				{
@@ -247,10 +264,13 @@ public static class Inventory
 				}
 				if (existingItem != null)
 				{
+					MelonLogger.Msg($"[Inventory->HandleItem] Item {item.ID} (UID: {item.UID}) already exists in game inventory, removing old one.");
 					GameData.Instance.localInventory.Delete(existingItem);
 				}
+				
+				MelonLogger.Msg($"[Inventory->HandleItem] Adding item {item.ID} (UID: {item.UID}) to game inventory.");
 				GameData.Instance.localInventory.Add(gameItem);
-				MelonLogger.Msg($"[Inventory->HandleItem] Item {item.ID} (UID: {item.UID}) added successfully. Total items in modItems: {modItems.Count}");
+				MelonLogger.Msg($"[Inventory->HandleItem] Item {item.ID} (UID: {item.UID}) added successfully. Total items in modItems: {modItems.Count}, game inventory count: {GameData.Instance.localInventory.items.Count}");
 				break;
 			case InventoryAction.remove:
 				if (item == null) yield break;
