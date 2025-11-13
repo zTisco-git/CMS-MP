@@ -43,6 +43,7 @@ public class ServerData
 	public Dictionary<int, ModLifterState> lifterStates = new();
 	public ModGarageCustomizationData garageCustomization;
 	public ModRadioData radioData;
+	public Dictionary<string, int> unmountingParts = new();
 
 	public void SetGarageUpgrade(GarageUpgrade upgrade)
 	{
@@ -73,15 +74,23 @@ public class ServerData
 		var key = partScript.partID;
 		var index = partScript.partIdNumber;
 
+		bool wasUnmounted = false;
+		ModPartScript oldPart = null;
+
 		switch (partScript.type)
 		{
 			case ModPartType.engine:
+				if (carInfos.EnginePartsReferences.ContainsKey(key))
+					oldPart = carInfos.EnginePartsReferences[key];
 				carInfos.EnginePartsReferences[key] = partScript;
 				break;
 			case ModPartType.suspension:
 				if (!carInfos.SuspensionPartsReferences.ContainsKey(key))
 					carInfos.SuspensionPartsReferences.Add(key, new Dictionary<int, ModPartScript>());
 
+				if (carInfos.SuspensionPartsReferences[key].ContainsKey(index))
+					oldPart = carInfos.SuspensionPartsReferences[key][index];
+				
 				if (!carInfos.SuspensionPartsReferences[key].ContainsKey(index))
 					carInfos.SuspensionPartsReferences[key].Add(index, partScript);
 				else
@@ -92,14 +101,60 @@ public class ServerData
 				if (!carInfos.OtherPartsReferences.ContainsKey(key))
 					carInfos.OtherPartsReferences.Add(key, new Dictionary<int, ModPartScript>());
 
+				if (carInfos.OtherPartsReferences[key].ContainsKey(index))
+					oldPart = carInfos.OtherPartsReferences[key][index];
+				
 				if (!carInfos.OtherPartsReferences[key].ContainsKey(index))
 					carInfos.OtherPartsReferences[key].Add(index, partScript);
 				else
 					carInfos.OtherPartsReferences[key][index] = partScript;
 				break;
 			case ModPartType.driveshaft:
+				if (carInfos.DriveshaftPartsReferences.ContainsKey(key))
+					oldPart = carInfos.DriveshaftPartsReferences[key];
 				carInfos.DriveshaftPartsReferences[key] = partScript;
 				break;
+		}
+
+		if (oldPart != null)
+			wasUnmounted = oldPart.unmounted;
+
+		if (wasUnmounted && !partScript.unmounted)
+		{
+			RemovePartFromAllInventories(partScript.id);
+		}
+	}
+
+	private void RemovePartFromAllInventories(string partID)
+	{
+		var itemsToRemove = new List<ModItem>();
+		foreach (var item in items.Values)
+		{
+			if (item.ID == partID)
+			{
+				itemsToRemove.Add(item);
+			}
+		}
+
+		foreach (var item in itemsToRemove)
+		{
+			items.Remove(item.UID);
+			ServerSend.ItemPacket(0, item, InventoryAction.remove);
+		}
+
+		var groupsToRemove = new List<ModGroupItem>();
+		foreach (var group in groupItems.Values)
+		{
+			if (group.ItemList != null && group.ItemList.Any(item => item != null && item.ID == partID))
+			{
+				groupsToRemove.Add(group);
+			}
+		}
+
+		foreach (var group in groupsToRemove)
+		{
+			groupItems.Remove(group.UID);
+			ServerSend.GroupItemPacket(0, group, InventoryAction.remove);
 		}
 	}
 
