@@ -230,10 +230,14 @@ public static class UILobby
 	private static void DeleteAllPlayer()
 	{
 		GameObject lobbyWindow = UICore.TMP_Window;
+		if (lobbyWindow == null || lobbyWindow.transform == null)
+			return;
 
 		for (int i = lobbyWindow.transform.childCount - 1; i >= 6; i--)
 		{
-			Object.Destroy(lobbyWindow.transform.GetChild(i).gameObject);
+			var child = lobbyWindow.transform.GetChild(i);
+			if (child != null && child.gameObject != null)
+				Object.Destroy(child.gameObject);
 		}
 	}
 }
