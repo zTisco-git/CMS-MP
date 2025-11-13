@@ -58,5 +58,7 @@ public enum PacketTypes
 	garageCustomization,
 	radio,
 	partLock,
-	partUnlock
+	partUnlock,
+	removeItemByID,
+	removeGroupItemByPartID
 }
