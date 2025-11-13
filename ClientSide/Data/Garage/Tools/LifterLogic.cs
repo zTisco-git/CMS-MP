@@ -22,6 +22,9 @@ public static class LifterLogic
 		if (__instance == null || __instance.connectedCarLoader == null)
 			return;
 
+		if (__instance.connectedCarLoader.gameObject == null || __instance.connectedCarLoader.gameObject.name == null || __instance.connectedCarLoader.gameObject.name.Length < 11)
+			return;
+
 		var action = 0;
 		if (actionType == 0) action = 1;
 		else if (actionType == 1) action = -1;
