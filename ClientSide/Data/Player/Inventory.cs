@@ -99,6 +99,7 @@ public static class Inventory
 		if (!Client.Instance.isConnected) {return;}
 		if (modItems.Any(i => i.UID == item.UID)) return;
 		
+		MelonLogger.Msg($"[Inventory->AddItemHook] Adding item to inventory: ID={item.ID}, UID={item.UID}");
 		var newItem = new ModItem(item);
 		modItems.Add(newItem);
 		ClientSend.ItemPacket(newItem, InventoryAction.add);
@@ -230,6 +231,7 @@ public static class Inventory
 		{
 			case InventoryAction.add:
 				if (item == null) yield break;
+				MelonLogger.Msg($"[Inventory->HandleItem] Adding item {item.ID} (UID: {item.UID}) to inventory.");
 				modItems.RemoveAll(i => i.UID == item.UID);
 				modItems.Add(item);
 				
@@ -248,6 +250,7 @@ public static class Inventory
 					GameData.Instance.localInventory.Delete(existingItem);
 				}
 				GameData.Instance.localInventory.Add(gameItem);
+				MelonLogger.Msg($"[Inventory->HandleItem] Item {item.ID} (UID: {item.UID}) added successfully. Total items in modItems: {modItems.Count}");
 				break;
 			case InventoryAction.remove:
 				if (item == null) yield break;
@@ -322,21 +325,35 @@ public static class Inventory
 			yield break;
 
 		MelonLogger.Msg($"[Inventory->RemoveItemByID] Removing items with ID {partID} from inventory.");
+		MelonLogger.Msg($"[Inventory->RemoveItemByID] Current modItems count: {modItems.Count}");
+		foreach (var modItem in modItems)
+		{
+			if (modItem != null)
+			{
+				MelonLogger.Msg($"[Inventory->RemoveItemByID] Checking item: ID={modItem.ID}, UID={modItem.UID}");
+			}
+		}
 
 		var itemsToRemove = modItems.Where(i => i != null && i.ID == partID).ToList();
 		MelonLogger.Msg($"[Inventory->RemoveItemByID] Found {itemsToRemove.Count} items in modItems to remove.");
 		
 		foreach (var modItem in itemsToRemove)
 		{
+			MelonLogger.Msg($"[Inventory->RemoveItemByID] Removing item {modItem.ID} (UID: {modItem.UID}) from modItems.");
 			modItems.Remove(modItem);
 		}
 
 		var itemsToDeleteFromGame = new List<Item>();
+		MelonLogger.Msg($"[Inventory->RemoveItemByID] Checking game inventory. Total items: {GameData.Instance.localInventory.items.Count}");
 		foreach (var invItem in GameData.Instance.localInventory.items)
 		{
-			if (invItem != null && invItem.ID == partID)
+			if (invItem != null)
 			{
-				itemsToDeleteFromGame.Add(invItem);
+				MelonLogger.Msg($"[Inventory->RemoveItemByID] Checking game item: ID={invItem.ID}, UID={invItem.UID}");
+				if (invItem.ID == partID)
+				{
+					itemsToDeleteFromGame.Add(invItem);
+				}
 			}
 		}
 
@@ -344,6 +361,7 @@ public static class Inventory
 
 		foreach (var itemToDelete in itemsToDeleteFromGame)
 		{
+			MelonLogger.Msg($"[Inventory->RemoveItemByID] Deleting game item {itemToDelete.ID} (UID: {itemToDelete.UID}) from game inventory.");
 			GameData.Instance.localInventory.Delete(itemToDelete);
 		}
 	}
