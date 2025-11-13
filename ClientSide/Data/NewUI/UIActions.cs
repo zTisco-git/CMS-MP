@@ -182,25 +182,20 @@ public static class UIActions
 	
 	private static void BeginJoinUiState()
 	{
-		// Cacher le titre
 		if (joinTitleContainer != null)
 			joinTitleContainer.SetActive(false);
 		
-		// Cacher toute l'interface de connexion (y compris tous les boutons)
 		if (joinUiElementsContainer != null)
 			joinUiElementsContainer.SetActive(false);
 		
-		// Cacher les boutons individuellement aussi (pour être sûr)
 		if (joinConfirmButton != null)
 			joinConfirmButton.gameObject.SetActive(false);
 		if (joinCancelButton != null)
 			joinCancelButton.gameObject.SetActive(false);
 		
-		// Afficher la barre de progression avec le bouton d'annulation
 		if (joinProgressContainer != null)
 			joinProgressContainer.SetActive(true);
 		
-		// Afficher le bouton d'annulation dans la barre de progression
 		if (joinProgressCancelButton != null)
 			joinProgressCancelButton.gameObject.SetActive(true);
 		
@@ -227,7 +222,6 @@ public static class UIActions
 		
 		if (success)
 		{
-			// Cacher le bouton d'annulation de la barre de progression
 			if (joinProgressCancelButton != null)
 				joinProgressCancelButton.gameObject.SetActive(false);
 			
@@ -240,17 +234,14 @@ public static class UIActions
 		}
 		else
 		{
-			// Cacher le bouton d'annulation de la barre de progression
 			if (joinProgressCancelButton != null)
 				joinProgressCancelButton.gameObject.SetActive(false);
 			
-			// Remettre l'interface de connexion visible
 			if (joinTitleContainer != null)
 				joinTitleContainer.SetActive(true);
 			if (joinUiElementsContainer != null)
 				joinUiElementsContainer.SetActive(true);
 			
-			// Réafficher les boutons de l'interface
 			if (joinConfirmButton != null)
 			{
 				joinConfirmButton.gameObject.SetActive(true);
