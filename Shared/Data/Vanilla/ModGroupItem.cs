@@ -36,7 +36,7 @@ public class ModGroupItem
 		}
 		else
 		{
-			MelonLogger.Msg("Error: GroupItem is null in ModGroupItem constructor.");
+			MelonLogger.Warning("[ModGroupItem] GroupItem is null in constructor. Creating empty ModGroupItem.");
 		}
 	}
 
