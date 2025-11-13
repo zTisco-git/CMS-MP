@@ -47,13 +47,27 @@ public class ModItem
 			Color = new ModColor(item.Color.GetColor());
 			Condition = item.Condition;
 			Dent = item.Dent;
-			//this.GearboxData = item.GearboxData; // TODO: Handle class
+			
+			// GearboxData et LPData sont des classes complexes du jeu
+			// Pour l'instant, on les laisse null car ModGearboxData et ModLPData sont vides
+			// Si nécessaire, ils peuvent être implémentés plus tard avec la structure complète
+			if (item.GearboxData != null)
+			{
+				// GearboxData sera null pour l'instant jusqu'à ce que la structure soit complétée
+				GearboxData = null;
+			}
+			
 			IsExamined = item.IsExamined;
 			IsPainted = item.IsPainted;
 			IsTinted = item.IsTinted;
 			Livery = item.Livery;
 			LiveryStrength = item.LiveryStrength;
-			//this.LPData = item.LPData; // TODO: Handle class
+			
+			if (item.LPData != null)
+			{
+				// LPData sera null pour l'instant jusqu'à ce que la structure soit complétée
+				LPData = null;
+			}
 			if (item.MountObjectData != null) MountObjectData = new ModMountObjectData(item.MountObjectData);
 			NormalID = item.NormalID;
 			OutsideRustEnabled = item.OutsideRustEnabled;
