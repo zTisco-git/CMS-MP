@@ -42,6 +42,7 @@ public class ServerData
 	public GarageTool wheelBalancer = new();
 	public Dictionary<int, ModLifterState> lifterStates = new();
 	public ModGarageCustomizationData garageCustomization;
+	public ModRadioData radioData;
 
 	public void SetGarageUpgrade(GarageUpgrade upgrade)
 	{
