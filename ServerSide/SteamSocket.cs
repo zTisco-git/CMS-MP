@@ -1,4 +1,5 @@
 using System;
+using CMS21Together.ServerSide.Data;
 using CMS21Together.Shared;
 using MelonLoader;
 using Steamworks;
@@ -78,7 +79,19 @@ public class SteamSocket: SocketManager
 
     public override void OnDisconnected(Connection connection, ConnectionInfo info)
     {
-        MelonLogger.Msg($"[SteamSocket->OnDisconnected] Client:{SteamworksUtils.GetClientFromConnection(connection).id} disconnected from server.");
+        var client = SteamworksUtils.GetClientFromConnection(connection);
+        if (client != null)
+        {
+            int clientId = client.id;
+            MelonLogger.Msg($"[SteamSocket->OnDisconnected] Client:{clientId} disconnected from server.");
+            
+            // Envoyer le packet de suppression aux autres clients avant de déconnecter
+            if (ServerData.Instance.connectedClients.ContainsKey(clientId))
+            {
+                ServerSend.PlayerRemovePacket(clientId);
+                ServerData.Instance.RemoveClient(clientId);
+            }
+        }
     }
 
     public override void OnMessage(Connection connection, NetIdentity identity, IntPtr data, int size, long messageNum, long recvTime, int channel)
