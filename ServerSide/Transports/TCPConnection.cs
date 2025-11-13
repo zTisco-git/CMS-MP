@@ -138,7 +138,6 @@ public class TCPConnection
 		if (!Server.Instance.clients.TryGetValue(id, out var client))
 			return;
 
-		// Envoyer le packet de suppression aux autres clients avant de déconnecter
 		if (ServerData.Instance.connectedClients.ContainsKey(id))
 		{
 			MelonLogger.Msg($"[TCPConnection->HandleClientDisconnect] Client {id} disconnected (connection lost).");

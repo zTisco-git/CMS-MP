@@ -11,8 +11,6 @@ using Steamworks;
 using UnhollowerRuntimeLib;
 using UnityEngine;
 
-// ReSharper disable All
-
 namespace CMS21Together
 {
 	public class MainMod : MelonMod

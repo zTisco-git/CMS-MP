@@ -53,6 +53,7 @@ public class SteamSocket: SocketManager
         else if (info.State == ConnectionState.Connected)
         {
             base.OnConnected(connection, info);
+            bool clientAssigned = false;
             for (int i = 1; i <= MainMod.MAX_PLAYER; i++)
             {
                 if (! Server.Instance.clients[i].isConnected)
@@ -61,8 +62,23 @@ public class SteamSocket: SocketManager
                     Server.Instance.clients[i].steam.isConnected = true;
                     Server.Instance.clients[i].Connect();
                     OnConnected(connection, info);
+                    clientAssigned = true;
+                    MelonLogger.Msg($"[SteamSocket->OnConnectionChanged] Client {i} assigned to Steam connection {clientSteamID}");
                     return;
                 }
+            }
+            if (!clientAssigned)
+            {
+                MelonLogger.Warning($"[SteamSocket->OnConnectionChanged] No available client slot for SteamID: {clientSteamID}");
+                connection.Close(false, 0, "Server is full");
+            }
+        }
+        else if (info.State == ConnectionState.ClosedByPeer || info.State == ConnectionState.Dead || info.State == ConnectionState.None)
+        {
+            var client = SteamworksUtils.GetClientFromConnection(connection);
+            if (client != null)
+            {
+                OnDisconnected(connection, info);
             }
         }
     }
@@ -85,7 +101,6 @@ public class SteamSocket: SocketManager
             int clientId = client.id;
             MelonLogger.Msg($"[SteamSocket->OnDisconnected] Client:{clientId} disconnected from server.");
             
-            // Envoyer le packet de suppression aux autres clients avant de déconnecter
             if (ServerData.Instance.connectedClients.ContainsKey(clientId))
             {
                 ServerSend.PlayerRemovePacket(clientId);

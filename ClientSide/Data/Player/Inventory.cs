@@ -109,7 +109,6 @@ public static class Inventory
 		if (!Client.Instance.isConnected) {return;}
 		if (modGroupItems.Any(i => i.UID == group.UID)) return;
 
-		//MelonLogger.Msg($"Add new group item with UID: {group.UID}.");
 		var newItem = new ModGroupItem(group);
 		modGroupItems.Add(newItem);
 		ClientSend.GroupItemPacket(newItem, InventoryAction.add);

@@ -129,42 +129,25 @@ public static class ServerResyncs
 			ServerSend.RadioPacketToClient(fromClient, ServerData.Instance.radioData);
 	}
 
-	/// <summary>
-	/// Envoie toutes les données synchronisées à un nouveau joueur qui se connecte
-	/// </summary>
 	public static void ResyncAll(int fromClient)
 	{
 		MelonLogger.Msg($"[ServerResyncs->ResyncAll] Sending all sync data to client {fromClient}...");
 		
-		// Customisation du garage
 		ResyncGarageCustomization(fromClient);
-		
-		// Upgrades du garage
 		ResyncUpgrade(fromClient);
-		
-		// Position des outils
 		ResyncTools(fromClient);
-		
-		// États des lifters
 		ResyncLifters(fromClient);
-		
-		// Voitures sur le parking
 		ResyncPark(fromClient);
-		
-		// Radio
 		ResyncRadio(fromClient);
 		
-		// Toutes les voitures chargées
 		foreach (var carLoaderID in ServerData.Instance.CarSpawnDatas.Keys)
 		{
 			ResyncCar(fromClient, carLoaderID);
 		}
 		
-		// Engine stands
 		ResyncEngineStand(fromClient, false);
 		ResyncEngineStand(fromClient, true);
 		
-		// Jobs
 		foreach (var job in ServerData.Instance.jobs)
 		{
 			ServerSend.JobPacket(fromClient, job, true);

@@ -13,7 +13,6 @@ using SceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace CMS21Together.ClientSide;
 
-//[RegisterTypeInIl2Cpp]
 public class Client
 {
 	public delegate void PacketHandler(Packet _packet);
@@ -121,6 +120,7 @@ public class Client
 			{ (int)PacketTypes.parkAdd, ClientHandle.AddCarToParkPacket },
 			{ (int)PacketTypes.parkRemove, ClientHandle.RemoveCarFromParkPacket },
 			{ (int)PacketTypes.garageCustomization, ClientHandle.GarageCustomizationPacket },
+			{ (int)PacketTypes.radio, ClientHandle.RadioPacket },
 			{ (int)PacketTypes.loadCar, ClientHandle.LoadCarPacket },
 			{ (int)PacketTypes.bodyPart, ClientHandle.BodyPartPacket },
 			{ (int)PacketTypes.partScript, ClientHandle.PartScriptPacket },

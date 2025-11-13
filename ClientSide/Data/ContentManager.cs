@@ -12,7 +12,6 @@ using CMS21Together.Shared.Data;
 
 namespace CMS21Together.ClientSide.Data;
 
-//[RegisterTypeInIl2Cpp]
 public class ContentManager
 {
 	public static ContentManager Instance;
@@ -106,7 +105,6 @@ public class ContentManager
 			return (new Version(m.Groups["ver"].Value), hf);
 		}
 
-		// Si format non reconnu, on tente un fallback minimal
 		return (new Version(0, 0, 0), 0);
 	}
 }

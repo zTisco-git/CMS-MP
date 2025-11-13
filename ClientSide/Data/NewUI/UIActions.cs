@@ -130,24 +130,19 @@ public static class UIActions
 			var wasCancelled = joinCancelled;
 			var errorMessage = wasCancelled ? "Cancelled" : "Connection failed";
 			
-			// Si c'était annulé, remettre immédiatement l'interface visible sans message d'erreur
 			if (wasCancelled)
 			{
-				// Cacher le bouton d'annulation de la barre de progression
 				if (joinProgressCancelButton != null)
 					joinProgressCancelButton.gameObject.SetActive(false);
 				
-				// Cacher la barre de progression
 				if (joinProgressContainer != null)
 					joinProgressContainer.SetActive(false);
 				
-				// Remettre l'interface de connexion visible
 				if (joinTitleContainer != null)
 					joinTitleContainer.SetActive(true);
 				if (joinUiElementsContainer != null)
 					joinUiElementsContainer.SetActive(true);
 				
-				// Réafficher les boutons de l'interface
 				if (joinConfirmButton != null)
 				{
 					joinConfirmButton.gameObject.SetActive(true);
@@ -164,7 +159,6 @@ public static class UIActions
 				return;
 			}
 			
-			// Si ce n'était pas annulé, afficher le message d'erreur
 			CompleteJoinUiState(false, errorMessage);
 			
 			if (wasCancelled || !wasConnecting)

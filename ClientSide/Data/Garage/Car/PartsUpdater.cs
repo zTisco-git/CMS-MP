@@ -49,7 +49,6 @@ public static class PartsUpdater
 				yield return new WaitForSeconds(0.25f);
 		yield return new WaitForEndOfFrame();
 
-		//MelonLogger.Msg("[PartsUpdater->UpdatePartScripts] Car ready, updating..");
 		if (ClientData.Instance.loadedCars.TryGetValue(carLoaderID, out var car))
 		{
 			var key = partScript.partID;

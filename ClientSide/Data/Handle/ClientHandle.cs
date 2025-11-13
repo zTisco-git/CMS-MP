@@ -49,7 +49,6 @@ public static class ClientHandle
 
 		ClientData.Instance.connectedClients[data.playerID] = data;
 		UILobby.RefreshPlayers();
-		//MelonLogger.Msg("[ClientHandle->UserDataPacket] Receive userData from server.");
 	}
 
 	public static void ContentsInfoPacket(Packet _packet)
@@ -135,7 +134,6 @@ public static class ClientHandle
 		var type = packet.Read<ModStats>();
 		var initial = packet.Read<bool>();
 
-		//MelonLogger.Msg($"Received stat:{value} , {type.ToString()}");
 		MelonCoroutines.Start(Stats.UpdateStats(type, value, initial));
 	}
 
@@ -157,8 +155,6 @@ public static class ClientHandle
 			lifter.Action(0);
 		else
 			lifter.Action(1);
-
-		// ClientData.Instance.loadedCars[carLoaderID - 1].CarLifterState = (int)state; TODO: fix this?
 	}
 
 	public static void SetTireChangerPacket(Packet packet)
@@ -192,7 +188,6 @@ public static class ClientHandle
 		else
 		{
 			WheelBalancer.listen = false;
-			//MelonLogger.Msg("CL: Received WheelBalance!");
 			GameData.Instance.wheelBalancer.SetGroupOnWheelBalancer(_item!.ToGame(_item), true);
 		}
 	}
@@ -263,8 +258,6 @@ public static class ClientHandle
 		var carData = packet.Read<ModNewCarData>();
 		var carLoaderID = packet.ReadInt();
 
-		//MelonLogger.Msg("[ClientHandle->LoadCarPacket] Received new car info.");
-
 		MelonCoroutines.Start(CarSpawnManager.LoadCarFromServer(carData, carLoaderID));
 	}
 
@@ -273,7 +266,6 @@ public static class ClientHandle
 		var carPart = packet.Read<ModCarPart>();
 		var carLoaderID = packet.ReadInt();
 
-		//MelonLogger.Msg("[ClientHandle->BodyPartPacket] Receive BodyPart.");
 		MelonCoroutines.Start(PartsUpdater.UpdateBodyParts(carPart, carLoaderID));
 	}
 
@@ -307,7 +299,6 @@ public static class ClientHandle
 	{
 		var upgrade = packet.Read<GarageUpgrade>();
 
-		//MelonLogger.Msg($"[ClientHandle->GarageUpgradePacket] Received upgrade for {upgrade.upgradeID}.");
 		MelonCoroutines.Start(GarageUpgradeManager.SetUpgrade(upgrade));
 	}
 
@@ -317,11 +308,17 @@ public static class ClientHandle
 		GarageCustomizationSync.Apply(data);
 	}
 
+	public static void RadioPacket(Packet packet)
+	{
+		var data = packet.Read<ModRadioData>();
+		RadioSync.Apply(data);
+		packet.Dispose();
+	}
+
 	public static void JobPacket(Packet packet)
 	{
 		var job = packet.Read<ModJob>();
 		
-		//MelonLogger.Msg("[ClientHandle->JobPacket] Received a job.");
 		MelonCoroutines.Start(JobManager.AddJob(job));
 	}
 

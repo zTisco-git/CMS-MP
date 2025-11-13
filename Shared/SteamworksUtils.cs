@@ -51,7 +51,6 @@ public static class SteamworksUtils
 			lobbyID /= 62;
 		} while (lobbyID > 0);
 
-		// Ajouter le caractère correspondant au décalage à la fin de la chaîne
 		result.Append(Characters[offset]);
 
 		return result.ToString();

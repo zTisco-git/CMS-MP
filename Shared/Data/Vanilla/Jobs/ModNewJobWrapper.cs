@@ -46,7 +46,6 @@ public class ModNewJobWrapper
 		timeToEnd = jobsItem.timeToEnd;
 		jobType = jobsItem.jobType;
 
-		// Copy job tasks
 		if (jobsItem.jobTasks != null)
 		{
 			jobTasks = new ModNewJobTaskWrapper[jobsItem.jobTasks.Length];
@@ -88,7 +87,6 @@ public class ModNewJobWrapper
 		newJobWrapper.timeToEnd = timeToEnd;
 		newJobWrapper.jobType = jobType;
 
-		// Copy job tasks
 		if (jobTasks != null)
 		{
 			newJobWrapper.jobTasks = new NewJobTaskWrapper[jobTasks.Length];

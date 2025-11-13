@@ -173,8 +173,6 @@ public static class ServerSend
 			else
 				SendData(fromClient, packet);
 		}
-
-		//MelonLogger.Msg("[ServerSend->PartScriptPacket] Sent BodyPart.");
 	}
 
 	public static void PartScriptPacket(int fromClient, ModPartScript partScript, int carLoaderID, bool resync=false)
@@ -189,8 +187,6 @@ public static class ServerSend
 			else
 				SendData(fromClient, packet);
 		}
-
-	//	MelonLogger.Msg("[ServerSend->PartScriptPacket] Sent PartScript.");
 	}
 
 	public static void DeleteCarPacket(int fromClient, int carLoaderID)
@@ -362,7 +358,6 @@ public static class ServerSend
 	private static void SendData(int _toClient, Packet _packet, bool reliable = true)
 	{
 		_packet.WriteLength();
-		//MelonLogger.Msg($"SendData[{_toClient}]");
 		Server.Instance.clients[_toClient].SendData(_packet, reliable);
 	}
 

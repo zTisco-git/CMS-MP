@@ -21,9 +21,7 @@ public class ModProfileData
 
 	public ModNewCarData[] carsOnParking;
 
-	//public RadioData jukeboxData;
 	public ModGarageCustomizationData garageCustomizationData;
-	// public NewWarehouseData warehouseData;
 	public ModNewCarLifterData[] carLiftersData;
 	public ModNewCarLoaderData carLoaderData;
 	public ModNewUnlockedPosition unlockedPosition;
@@ -33,10 +31,6 @@ public class ModProfileData
 	public ModNewJobsData jobsData;
 
 	public ModNewGlobalDataWrapper globalDataWrapper;
-	//   public PlayerData PlayerData;
-	//public ShopListItemData[] ShopListItemsData;
-	// public PaintshopData PaintshopData;
-	// public WindowTintData WindowTintData;
 
 	public ModProfileData(ProfileData data)
 	{
@@ -50,21 +44,18 @@ public class ModProfileData
 		FinishedTutorial = data.FinishedTutorial;
 		Difficulty = (ModDifficultyLevel)data.Difficulty;
 
-		// Copy cars in garage
 		if (data.carsInGarage != null)
 		{
 			carsInGarage = new ModNewCarData[data.carsInGarage.Length];
-			for (var i = 0; i < data.carsInGarage.Length; i++) carsInGarage[i] = new ModNewCarData(data.carsInGarage[i]);
+				for (var i = 0; i < data.carsInGarage.Length; i++) carsInGarage[i] = new ModNewCarData(data.carsInGarage[i]);
 		}
 
-		// Copy cars on parking
 		if (data.carsOnParking != null)
 		{
 			carsOnParking = new ModNewCarData[data.carsOnParking.Length];
-			for (var i = 0; i < data.carsOnParking.Length; i++) carsOnParking[i] = new ModNewCarData(data.carsOnParking[i]);
+				for (var i = 0; i < data.carsOnParking.Length; i++) carsOnParking[i] = new ModNewCarData(data.carsOnParking[i]);
 		}
 
-		// Copy car lifters data
 		if (data.carLiftersData != null)
 		{
 			carLiftersData = new ModNewCarLifterData[data.carLiftersData.Length];
@@ -72,7 +63,6 @@ public class ModProfileData
 		}
 
 		if (data.carLoaderData != null) carLoaderData = new ModNewCarLoaderData(data.carLoaderData);
-		// Copy unlocked position
 		if (data.unlockedPosition != null) unlockedPosition = new ModNewUnlockedPosition(data.unlockedPosition);
 		if (data.garageCustomizationData != null) garageCustomizationData = new ModGarageCustomizationData(data.garageCustomizationData);
 
@@ -80,9 +70,7 @@ public class ModProfileData
 		upgradeForMoneyData = new ModNewUpgradeSystemData(data.upgradeForMoneyData);
 		if (data.machines != null) machines = new ModNewMachines(data.machines);
 
-		// Copy jobs data
 		if (data.jobsData != null) jobsData = new ModNewJobsData(data.jobsData);
-		// Copy global data wrapper
 		if (data.globalDataWrapper != null) globalDataWrapper = new ModNewGlobalDataWrapper(data.globalDataWrapper);
 	}
 
@@ -90,7 +78,6 @@ public class ModProfileData
 	{
 		var profileData = new ProfileData();
 
-		// Copy basic data
 		profileData.Name = Name;
 		profileData.LastSave = LastSave;
 		profileData.PlayTime = PlayTime;
@@ -115,7 +102,6 @@ public class ModProfileData
 		return profileData;
 	}
 
-	// Helper method to copy car array
 	private NewCarData[] CopyCarArray(ModNewCarData[] carArray)
 	{
 		if (carArray != null)
@@ -130,7 +116,6 @@ public class ModProfileData
 		return null;
 	}
 
-	// Helper method to copy car lifter array
 	private NewCarLifterData[] CopyCarLifterArray(ModNewCarLifterData[] carLifterArray)
 	{
 		if (carLifterArray != null)

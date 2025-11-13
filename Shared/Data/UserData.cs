@@ -80,7 +80,6 @@ public class UserData
 		}
 		else
 		{
-			// Vérifier si le joueur existe déjà pour éviter les doublons
 			if (userObject != null)
 			{
 				MelonLogger.Warning($"[UserData->SpawnPlayer] Player {username} (ID: {playerID}) already exists, destroying old instance.");

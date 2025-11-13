@@ -48,12 +48,8 @@ public class ModItem
 			Condition = item.Condition;
 			Dent = item.Dent;
 			
-			// GearboxData et LPData sont des classes complexes du jeu
-			// Pour l'instant, on les laisse null car ModGearboxData et ModLPData sont vides
-			// Si nécessaire, ils peuvent être implémentés plus tard avec la structure complète
 			if (item.GearboxData != null)
 			{
-				// GearboxData sera null pour l'instant jusqu'à ce que la structure soit complétée
 				GearboxData = null;
 			}
 			
@@ -65,7 +61,6 @@ public class ModItem
 			
 			if (item.LPData != null)
 			{
-				// LPData sera null pour l'instant jusqu'à ce que la structure soit complétée
 				LPData = null;
 			}
 			if (item.MountObjectData != null) MountObjectData = new ModMountObjectData(item.MountObjectData);

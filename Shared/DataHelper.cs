@@ -41,7 +41,6 @@ public class DataHelper
 		if (sourceStream == null)
 			throw new ArgumentNullException(nameof(sourceStream));
 
-		// Sérialiser le stream source
 		byte[] serializedData;
 		using (var memoryStream = new MemoryStream())
 		{
@@ -49,13 +48,11 @@ public class DataHelper
 			serializedData = memoryStream.ToArray();
 		}
 
-		// Écrire les données sérialisées dans un nouveau Il2CppSystem.IO.Stream
 		Il2CppSystem.IO.Stream newStream = new Il2CppSystem.IO.MemoryStream();
 		var writer = new BinaryWriter(newStream);
 		writer.Write(serializedData);
 		writer.Flush();
 
-		// Assurez-vous de remettre le curseur au début du nouveau stream
 		newStream.Seek(0, SeekOrigin.Begin);
 
 		return newStream;
@@ -77,22 +74,19 @@ public class DataHelper
 		copy.BestRaceTime = data.BestRaceTime;
 		copy.LastUID = data.LastUID;
 		
-		// Copie des données complexes - vérifiées et fonctionnelles
-		copy.machines = data.machines; // Structure simple, copie directe OK
-		copy.inventoryData = data.inventoryData; // Structure Il2Cpp, copie directe OK
-		copy.jobsData = data.jobsData; // Structure Il2Cpp, copie directe OK
-		copy.jukeboxData = data.jukeboxData; // RadioData, copie directe OK
-		copy.unlockedPosition = data.unlockedPosition; // Structure simple, copie directe OK
-		copy.warehouseData = data.warehouseData; // Structure Il2Cpp, copie directe OK
-		copy.carLiftersData = data.carLiftersData; // Array Il2Cpp, copie directe OK
-		copy.carLoaderData = data.carLoaderData; // Structure Il2Cpp, copie directe OK
-		copy.globalDataWrapper = data.globalDataWrapper; // Structure Il2Cpp, copie directe OK
-		copy.PaintshopData = data.PaintshopData; // Structure Il2Cpp, copie directe OK
-		copy.PlayerData = data.PlayerData; // Structure Il2Cpp, copie directe OK
-		copy.WindowTintData = data.WindowTintData; // Structure Il2Cpp, copie directe OK
-		copy.ShopListItemsData = data.ShopListItemsData; // Array Il2Cpp, copie directe OK
-		
-		// Copie des arrays de voitures avec conversion
+		copy.machines = data.machines;
+		copy.inventoryData = data.inventoryData;
+		copy.jobsData = data.jobsData;
+		copy.jukeboxData = data.jukeboxData;
+		copy.unlockedPosition = data.unlockedPosition;
+		copy.warehouseData = data.warehouseData;
+		copy.carLiftersData = data.carLiftersData;
+		copy.carLoaderData = data.carLoaderData;
+		copy.globalDataWrapper = data.globalDataWrapper;
+		copy.PaintshopData = data.PaintshopData;
+		copy.PlayerData = data.PlayerData;
+		copy.WindowTintData = data.WindowTintData;
+		copy.ShopListItemsData = data.ShopListItemsData;
 		if (data.carsInGarage != null && data.carsInGarage.Length > 0)
 		{
 			copy.carsInGarage = new Il2CppReferenceArray<NewCarData>(data.carsInGarage.Length);
@@ -109,11 +103,9 @@ public class DataHelper
 					copy.carsOnParking[i] = Copy(data.carsOnParking[i]);
 		}
 		
-		// Copie de la customisation du garage avec conversion Mod
 		if (data.garageCustomizationData != null)
 			copy.garageCustomizationData = new ModGarageCustomizationData(data.garageCustomizationData).ToGame();
 		
-		// Copie des données d'upgrade
 		copy.upgradeForMoneyData = data.upgradeForMoneyData;
 		copy.upgradeForPointsData = data.upgradeForPointsData;
 

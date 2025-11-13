@@ -42,7 +42,6 @@ public static class EngineCrane
 			yield return new WaitForSeconds(0.25f);
 		yield return new WaitForEndOfFrame();
 		
-		//GameData.Instance.carLoaders[carLoaderID].UseEngineCrane();
 		CarLoader carLoader = GameData.Instance.carLoaders[carLoaderID];
 		
 		GameObject engine = carLoader.GetEngine();

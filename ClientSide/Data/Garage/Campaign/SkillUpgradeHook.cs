@@ -23,15 +23,12 @@ public static class SkillUpgradeHook
 		var items = __instance.GetUnlocked(id);
 		if (items == null) return;
 		
-		//MelonLogger.Msg($"UnlockedState: ");
 		List<bool> skillInfo = new List<bool>();
 		for (int i = 0; i < items.Length; i++)
 		{
-			//MelonLogger.Msg($"{i} : {items[i]}");
 			skillInfo.Add(items[i]);
 		}
 		
-		// ReSharper disable once PossibleNullReferenceException
 		ClientSend.SkillChangePacket(id, skillInfo);
 		MelonCoroutines.Start(UpdateSkillPoint(__instance));
 	}

@@ -16,7 +16,6 @@ using UnityEngine;
 
 namespace CMS21Together.ServerSide;
 
-//[RegisterTypeInIl2Cpp]
 public class Server 
 {
 	public delegate void packetHandler(int fromClient, Packet packet);
@@ -204,6 +203,7 @@ public class Server
 			{ (int)PacketTypes.clearTireChanger, ServerHandle.ClearTireChangerPacket },
 			{ (int)PacketTypes.wheelBalance, ServerHandle.WheelBalancePacket },
 			{ (int)PacketTypes.garageCustomization, ServerHandle.GarageCustomizationPacket },
+			{ (int)PacketTypes.radio, ServerHandle.RadioPacket },
 			{ (int)PacketTypes.toolMove, ServerHandle.ToolsMovePacket },
 			{ (int)PacketTypes.oilBinUse, ServerHandle.OilBin },
 			{ (int)PacketTypes.engineCrane, ServerHandle.EngineCraneHandlePacket },

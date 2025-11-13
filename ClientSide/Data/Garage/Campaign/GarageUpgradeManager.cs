@@ -44,7 +44,6 @@ public static class GarageUpgradeManager
 			UpgradeItem item = upgradeTools.upgradeItems.ToArray().First(u => u.upgradeID == upgrade.upgradeID);
 			if (upgrade.unlocked && item != null && item.upgradeState != UpgradeState.Unlocked)
 			{
-				//MelonLogger.Msg($"Unlock : {upgrade.upgradeID} , {item == null}");
 				yield return new WaitForEndOfFrame();
 				upgradeTools.UpdateSkillState(item, UpgradeState.Unlocked);
 				upgradeTools.UpdateRelatedSkillState(item);

@@ -46,6 +46,7 @@ public class ClientData
 		Garage.Tools.CarWashLogic.Reset();
 		GarageCustomizationSync.Reset();
 		CarPaintLogic.Reset();
+		RadioSync.Reset();
 		engineStand = new(null);
 		engineStand2 = new(null);
 		garageUpgrades = new Dictionary<string, GarageUpgrade>();
@@ -63,6 +64,7 @@ public class ClientData
 			Movement.CheckForInactivity();
 			Rotation.SendRotation();
 			GarageCustomizationSync.Update();
+			RadioSync.Update();
 		}
 	}
 

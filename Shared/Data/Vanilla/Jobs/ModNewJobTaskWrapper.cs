@@ -27,7 +27,6 @@ public class ModNewJobTaskWrapper
 		moneySpent = data.moneySpent;
 		Parts = new List<ModNewJobPart>();
 
-		// Copy parts
 		if (Parts != null)
 			foreach (var part in data.Parts)
 				Parts.Add(new ModNewJobPart(part));
@@ -48,7 +47,6 @@ public class ModNewJobTaskWrapper
 		jobTaskWrapper.moneySpent = moneySpent;
 		jobTaskWrapper.Parts = new Il2CppSystem.Collections.Generic.List<NewJobPart>();
 
-		// Copy parts
 		if (Parts != null)
 			foreach (var part in Parts)
 				jobTaskWrapper.Parts.Add(part.ToGame());

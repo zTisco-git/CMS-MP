@@ -510,6 +510,17 @@ public class ClientSend
 		}
 	}
 
+	public static void RadioPacket(ModRadioData data)
+	{
+		if (data == null)
+			return;
+		using (var packet = new Packet((int)PacketTypes.radio))
+		{
+			packet.Write(data);
+			SendData(packet);
+		}
+	}
+
 	public static void ResyncCustomization()
 	{
 		using (var packet = new Packet((int)PacketTypes.resync))

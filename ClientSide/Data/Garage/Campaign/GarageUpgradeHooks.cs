@@ -64,7 +64,6 @@ public static class GarageUpgradeHooks
 			if (__instance.currentUpgradeItem.UpgradeID == "crane")
 				GameData.Instance.engineStandLogic2.gameObject.SetActive(true);
 			
-			//MelonLogger.Msg($"[GarageUpgradeHooks->UnlockCurrentSelectedSkillActionHook] Triggered: {__instance.currentUpgradeItem.upgradeID}");
 			ClientData.Instance.garageUpgrades[__instance.currentUpgradeItem.upgradeID] = new GarageUpgrade(__instance.currentUpgradeItem.upgradeID, true);
 			ClientSend.GarageUpgradePacket(ClientData.Instance.garageUpgrades[__instance.currentUpgradeItem.upgradeID]);
 		}
@@ -84,7 +83,6 @@ public static class GarageUpgradeHooks
 		
 		foreach (UpgradeItem item in GameData.Instance.upgradeTools.upgradeItems)
 		{
-			//MelonLogger.Msg($"Upgrade : {item.upgradeID} , state : {item.upgradeState}.");
 			ClientData.Instance.garageUpgrades[item.upgradeID] = new GarageUpgrade(item.upgradeID, item.upgradeState == UpgradeState.Unlocked);
 			ClientSend.GarageUpgradePacket(ClientData.Instance.garageUpgrades[item.upgradeID]);
 			

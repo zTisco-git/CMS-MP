@@ -234,7 +234,6 @@ public class ServerData
 			carInfo.FluidsData = new ModFluidsData();
 		}
 
-		// Mettre à jour le bon fluide selon le type
 		if (fluid?.CarFluid != null)
 		{
 			switch (fluid.CarFluid.FluidType)
@@ -243,10 +242,9 @@ public class ServerData
 					carInfo.FluidsData.Oil = fluid;
 					break;
 				case ModCarFluidType.Brake:
-					if (carInfo.FluidsData.Brake == null)
-						carInfo.FluidsData.Brake = new System.Collections.Generic.List<ModFluidData>();
-					// Trouver et mettre à jour ou ajouter le fluide de frein
-					var brakeIndex = -1;
+				if (carInfo.FluidsData.Brake == null)
+					carInfo.FluidsData.Brake = new System.Collections.Generic.List<ModFluidData>();
+				var brakeIndex = -1;
 					for (int i = 0; i < carInfo.FluidsData.Brake.Count; i++)
 					{
 						if (carInfo.FluidsData.Brake[i]?.CarFluid?.ID == fluid.CarFluid.ID)

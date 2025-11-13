@@ -29,8 +29,6 @@ public static class ServerHandle
 		var modVersion = packet.Read<string>();
 		string playerID = packet.Read<string>();
 
-		//MelonLogger.Msg($"[ServerHandle->ConnectValidationPacket] Received info : {clientIdCheck},{username},{modVersion}");
-
 		if (modVersion != MainMod.ASSEMBLY_MOD_VERSION)
 		{
 			ServerSend.DisconnectPacket(fromClient, $"Server mod version is on {MainMod.ASSEMBLY_MOD_VERSION}.");
@@ -70,13 +68,11 @@ public static class ServerHandle
 		if (ServerData.Instance.garageCustomization != null)
 			ServerSend.GarageCustomizationPacketToClient(clientIdCheck, ServerData.Instance.garageCustomization);
 		
-		// Envoyer toutes les données synchronisées au nouveau joueur
 		MelonCoroutines.Start(SendResyncAfterDelay(clientIdCheck));
 	}
 	
 	private static IEnumerator SendResyncAfterDelay(int clientId)
 	{
-		// Attendre un peu pour que le client soit prêt
 		yield return new WaitForSeconds(1.0f);
 		ServerResyncs.ResyncAll(clientId);
 	}
@@ -242,7 +238,6 @@ public static class ServerHandle
 		int exp = packet.ReadInt();
 		int lvl = packet.ReadInt();
 		
-		//MelonLogger.Msg($"Received XP Packet : {GlobalData.PlayerExp} , {GlobalData.PlayerLevel}");
 		ServerData.Instance.connectedClients[fromClient].playerExp = exp;
 		ServerData.Instance.connectedClients[fromClient].playerLevel = lvl;
 	}
@@ -251,7 +246,6 @@ public static class ServerHandle
 	{
 		int points = packet.ReadInt();
 		
-		//MelonLogger.Msg($"Received PointPacket Packet : {points}");
 		ServerData.Instance.connectedClients[fromClient].playerSkillPoints = points;
 	}
 
@@ -337,7 +331,6 @@ public static class ServerHandle
 	{
 		var job = packet.Read<ModJob>();
 
-		//MelonLogger.Msg("SV: Received JobPacket!");
 		ServerData.Instance.AddJob(job);
 		ServerSend.JobPacket(fromClient, job);
 	}
@@ -347,7 +340,6 @@ public static class ServerHandle
 		ModJob job = packet.Read<ModJob>();
 		var takeJob = packet.Read<bool>();
 
-		//MelonLogger.Msg("SV: Received JobAction!");
 		ServerData.Instance.RemoveJob(job.id);
 		ServerSend.JobActionPacket(fromClient, job, takeJob);
 	}
@@ -357,7 +349,6 @@ public static class ServerHandle
 		var job = packet.Read<ModJob>();
 		var action = packet.Read<bool>();
 		
-		//MelonLogger.Msg("cl: Received SelectedJobPacket!");
 		ServerData.Instance.UpdateSelectedJobs(job, action);
 		ServerSend.SelectedJobPacket(fromClient, job, action);
 	}
@@ -366,7 +357,6 @@ public static class ServerHandle
 	{
 		var job = packet.Read<ModJob>();
 
-		//MelonLogger.Msg("SV : endjob !");
 		ServerData.Instance.EndJob(job);
 		ServerSend.EndJobPacket(fromClient, job);
 	}

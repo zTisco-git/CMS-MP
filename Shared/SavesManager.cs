@@ -326,8 +326,6 @@ public static class SavesManager
 	{
 		if (!Client.Instance.isConnected) return;
 
-		//MelonLogger.Msg("Save GameProfile");
-		//MelonLogger.Msg("ProfileManager Save Index: " + Singleton<GameManager>.Instance.ProfileManager.selectedProfile);
 		SaveModSave(__instance.selectedProfile);
 	}
 
@@ -337,8 +335,6 @@ public static class SavesManager
 	{
 		if (!Client.Instance.isConnected) return true;
 
-		//MelonLogger.Msg("Save Game");
-		//MelonLogger.Msg("ProfileManager Save Index: " + Singleton<GameManager>.Instance.ProfileManager.selectedProfile);
 		GameData.Instance.orderGenerator?.Save();
 		SaveModSave(Singleton<GameManager>.Instance.ProfileManager.selectedProfile);
 		return true;

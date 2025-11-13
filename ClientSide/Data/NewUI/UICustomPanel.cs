@@ -383,8 +383,6 @@ public static class UICustomPanel
 		var img = UICore.TMP_Window.AddComponent<Image>();
 		img.color = new Color(.031f, .027f, .033f, 0.85f);
 
-		
-		// Créer un conteneur pour le titre et le splitter
 		var titleContainer = new GameObject("JoinTitle");
 		titleContainer.transform.SetParent(UICore.TMP_Window.transform, false);
 		var titleRect = titleContainer.AddComponent<RectTransform>();
@@ -404,7 +402,6 @@ public static class UICustomPanel
 
 		CreateSplitter(titleContainer.transform, new Vector2(0, -40), new(390, 2));
 		
-		// Créer un conteneur pour tous les éléments de l'interface de connexion
 		var uiElementsContainer = new GameObject("JoinUIElements");
 		uiElementsContainer.transform.SetParent(UICore.TMP_Window.transform, false);
 		var uiElementsRect = uiElementsContainer.AddComponent<RectTransform>();
@@ -540,7 +537,6 @@ public static class UICustomPanel
 		fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
 		fillImage.fillAmount = 0f;
 
-		// Ajouter un bouton "Annuler" dans la barre de progression
 		var progressCancelBtn = UIElements.CreateButton(progressContainer.transform,
 			"Annuler", (() => 
 			{ 
