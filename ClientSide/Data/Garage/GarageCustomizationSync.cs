@@ -79,19 +79,67 @@ public static class GarageCustomizationSync
 			var loadCustomization = AccessTools.Method(loaderType, "LoadCustomization", new[] { typeof(GarageCustomizationData) });
 			if (loadCustomization != null)
 			{
-				loadCustomization.Invoke(loader, new object[] { customization });
+				try
+				{
+					var parameters = loadCustomization.GetParameters();
+					if (parameters.Length == 1 && parameters[0].ParameterType == typeof(GarageCustomizationData))
+					{
+						loadCustomization.Invoke(loader, new object[] { customization });
+					}
+					else
+					{
+						MelonLogger.Warning($"[GarageCustomizationSync] LoadCustomization method signature mismatch. Expected 1 parameter, found {parameters.Length}.");
+					}
+				}
+				catch (System.Exception ex)
+				{
+					MelonLogger.Error($"[GarageCustomizationSync] Error invoking LoadCustomization: {ex.Message}");
+				}
 			}
 			else
 			{
 				var applyCustomization = AccessTools.Method(loaderType, "ApplyCustomization", new[] { typeof(GarageCustomizationData) });
 				if (applyCustomization != null)
-					applyCustomization.Invoke(loader, new object[] { customization });
+				{
+					try
+					{
+						var parameters = applyCustomization.GetParameters();
+						if (parameters.Length == 1 && parameters[0].ParameterType == typeof(GarageCustomizationData))
+						{
+							applyCustomization.Invoke(loader, new object[] { customization });
+						}
+						else
+						{
+							MelonLogger.Warning($"[GarageCustomizationSync] ApplyCustomization method signature mismatch. Expected 1 parameter, found {parameters.Length}.");
+						}
+					}
+					catch (System.Exception ex)
+					{
+						MelonLogger.Error($"[GarageCustomizationSync] Error invoking ApplyCustomization: {ex.Message}");
+					}
+				}
 				else
+				{
 					MelonLogger.Warning("[GarageCustomizationSync] Unable to locate customization apply method on GarageLoader.");
+				}
 			}
 
 			var saveMethod = AccessTools.Method(loaderType, "Save");
-			saveMethod?.Invoke(loader, null);
+			if (saveMethod != null)
+			{
+				try
+				{
+					var parameters = saveMethod.GetParameters();
+					if (parameters.Length == 0)
+					{
+						saveMethod.Invoke(loader, null);
+					}
+				}
+				catch (System.Exception ex)
+				{
+					MelonLogger.Error($"[GarageCustomizationSync] Error invoking Save: {ex.Message}");
+				}
+			}
 		}
 
 		lastLocal = data;
