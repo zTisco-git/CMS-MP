@@ -103,6 +103,24 @@ public static class ServerSend
 		}
 	}
 
+	public static void RadioPacket(int fromClient, ModRadioData data)
+	{
+		using (var packet = new Packet((int)PacketTypes.radio))
+		{
+			packet.Write(data);
+			SendDataToAll(fromClient, packet);
+		}
+	}
+
+	public static void RadioPacketToClient(int toClient, ModRadioData data)
+	{
+		using (var packet = new Packet((int)PacketTypes.radio))
+		{
+			packet.Write(data);
+			SendData(toClient, packet);
+		}
+	}
+
 	public static void StatPacket(int fromClient, int value, ModStats type, bool initial)
 	{
 		using (var packet = new Packet((int)PacketTypes.stat))
@@ -209,13 +227,16 @@ public static class ServerSend
 		}
 	}
 
-	public static void JobPacket(int fromClient, ModJob job)
+	public static void JobPacket(int fromClient, ModJob job, bool resync = false)
 	{
 		using (var packet = new Packet((int)PacketTypes.newJob))
 		{
 			packet.Write(job);
 
-			SendDataToAll(fromClient, packet);
+			if (!resync)
+				SendDataToAll(fromClient, packet);
+			else
+				SendData(fromClient, packet);
 		}
 	}
 
