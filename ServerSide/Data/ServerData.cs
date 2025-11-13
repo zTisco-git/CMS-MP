@@ -203,11 +203,44 @@ public class ServerData
 
 	public void UpdateBodyParts(ModCarPart carPart, int carLoaderID)
 	{
+		MelonLogger.Msg($"[ServerData->UpdateBodyParts] Received update for body part {carPart.name} (unmounted={carPart.unmounted}) on carLoader {carLoaderID}");
+		
 		if (!Instance.CarPartInfo.ContainsKey(carLoaderID))
 			Instance.CarPartInfo.Add(carLoaderID, new ModCarInfo());
 
 		var carInfos = Instance.CarPartInfo[carLoaderID];
+		
+		bool wasUnmounted = false;
+		if (carInfos.BodyPartsReferences.ContainsKey(carPart.carPartID))
+		{
+			wasUnmounted = carInfos.BodyPartsReferences[carPart.carPartID].unmounted;
+			MelonLogger.Msg($"[ServerData->UpdateBodyParts] Body part {carPart.name}: oldPart.unmounted={wasUnmounted}, newPart.unmounted={carPart.unmounted}");
+		}
+		else
+		{
+			MelonLogger.Msg($"[ServerData->UpdateBodyParts] Body part {carPart.name}: oldPart is null, newPart.unmounted={carPart.unmounted}");
+			
+			if (!carPart.unmounted)
+			{
+				var itemExists = items.Values.Any(item => item != null && item.ID == carPart.name) ||
+				                 groupItems.Values.Any(group => group != null && group.ItemList != null && 
+				                     group.ItemList.Any(item => item != null && item.ID == carPart.name));
+				
+				if (itemExists)
+				{
+					MelonLogger.Msg($"[ServerData->UpdateBodyParts] Body part {carPart.name} is being mounted for the first time and exists in inventory. Removing from all inventories.");
+					RemovePartFromAllInventories(carPart.name);
+				}
+			}
+		}
+		
 		carInfos.BodyPartsReferences[carPart.carPartID] = carPart;
+		
+		if (wasUnmounted && !carPart.unmounted)
+		{
+			MelonLogger.Msg($"[ServerData->UpdateBodyParts] Body part {carPart.name} was unmounted, now mounted. Removing from all inventories.");
+			RemovePartFromAllInventories(carPart.name);
+		}
 	}
 
 	public void ChangePosition(int carLoaderID, int placeNo)

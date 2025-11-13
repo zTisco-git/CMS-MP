@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CMS.Helpers;
+using CMS21Together.ClientSide.Data.Garage.Car;
 using CMS21Together.ClientSide.Data.Handle;
 using CMS21Together.ServerSide;
 using CMS21Together.Shared.Data.Vanilla;
 using HarmonyLib;
 using MelonLoader;
+using UnityEngine;
 
 namespace CMS21Together.ClientSide.Data.Player;
 
@@ -122,11 +124,44 @@ public static class Inventory
 
 		if (item == null) return;
 
+		MelonLogger.Msg($"[Inventory->RemoveItemHook] Item {item.ID} (UID: {item.UID}) is being deleted from inventory. Checking if part is being mounted...");
+		
 		if (modItems.Any(s => s.UID == item.UID))
 		{
 			var itemToRemove = modItems.First(s => s.UID == item.UID);
 			ClientSend.ItemPacket(itemToRemove, InventoryAction.remove);
 			modItems.Remove(itemToRemove);
+			
+			MelonCoroutines.Start(CheckIfPartMounted(item.ID));
+		}
+	}
+	
+	private static IEnumerator CheckIfPartMounted(string partID)
+	{
+		yield return new WaitForEndOfFrame();
+		yield return new WaitForSeconds(0.5f);
+		
+		if (GameData.Instance == null || GameData.Instance.carLoaders == null)
+			yield break;
+		
+		for (int i = 0; i < GameData.Instance.carLoaders.Length; i++)
+		{
+			var carLoader = GameData.Instance.carLoaders[i];
+			if (carLoader == null) continue;
+			
+			var allParts = new List<PartScript>();
+			allParts.AddRange(carLoader.GetComponentsInChildren<PartScript>());
+			
+			foreach (var part in allParts)
+			{
+				if (part != null && part.id == partID && !part.IsUnmounted)
+				{
+					MelonLogger.Msg($"[Inventory->CheckIfPartMounted] Part {partID} is mounted on carLoader {i}. Triggering sync and inventory removal.");
+					MelonCoroutines.Start(PartUpdateHooks.SyncPartAfterMount(part));
+					MelonCoroutines.Start(PartUpdateHooks.RemoveMountedPartFromInventory(part));
+					yield break;
+				}
+			}
 		}
 	}
 

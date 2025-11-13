@@ -165,6 +165,101 @@ public static class PartUpdateHooks
 		return allMounted;
 	}
 
+	public static IEnumerator RemoveMountedPartFromInventory(PartScript partScript)
+	{
+		yield return new WaitForEndOfFrame();
+		yield return new WaitForSeconds(0.5f);
+		
+		if (partScript == null || GameData.Instance == null || GameData.Instance.localInventory == null)
+			yield break;
+		
+		if (partScript.IsUnmounted)
+			yield break;
+		
+		var partID = partScript.id;
+		if (string.IsNullOrEmpty(partID))
+			yield break;
+		
+		MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedPartFromInventory] Removing part {partID} from local inventory after mount.");
+		
+		var itemsToRemove = new List<ModItem>();
+		foreach (var modItem in Player.Inventory.modItems.ToList())
+		{
+			if (modItem != null && modItem.ID == partID)
+			{
+				Item gameItem = null;
+				foreach (var invItem in GameData.Instance.localInventory.items)
+				{
+					if (invItem != null && invItem.UID == modItem.UID && invItem.ID == partID)
+					{
+						gameItem = invItem;
+						break;
+					}
+				}
+				if (gameItem != null)
+				{
+					itemsToRemove.Add(modItem);
+					break;
+				}
+			}
+		}
+		
+		if (itemsToRemove.Count == 0)
+		{
+			var groupsToRemove = new List<ModGroupItem>();
+			foreach (var modGroup in Player.Inventory.modGroupItems.ToList())
+			{
+				if (modGroup != null && modGroup.ItemList != null && modGroup.ItemList.Any(item => item != null && item.ID == partID))
+				{
+					GroupItem gameGroup = null;
+					foreach (var group in GameData.Instance.localInventory.groups)
+					{
+						if (group != null && group.UID == modGroup.UID)
+						{
+							gameGroup = group;
+							break;
+						}
+					}
+					if (gameGroup != null)
+					{
+						var matchingItem = modGroup.ItemList.FirstOrDefault(item => item != null && item.ID == partID);
+						if (matchingItem != null)
+						{
+							bool foundInGroup = false;
+							foreach (var i in gameGroup.ItemList)
+							{
+								if (i != null && i.ID == partID)
+								{
+									foundInGroup = true;
+									break;
+								}
+							}
+							if (foundInGroup)
+							{
+								groupsToRemove.Add(modGroup);
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			foreach (var modGroup in groupsToRemove)
+			{
+				Player.Inventory.modGroupItems.Remove(modGroup);
+				ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
+			}
+		}
+		else
+		{
+			foreach (var modItem in itemsToRemove)
+			{
+				Player.Inventory.modItems.Remove(modItem);
+				ClientSend.ItemPacket(modItem, InventoryAction.remove);
+			}
+		}
+	}
+
 	public static IEnumerator SyncPartAfterMount(PartScript partScript)
 	{
 		yield return new WaitForEndOfFrame();
@@ -301,7 +396,103 @@ public static class PartUpdateHooks
 		if (FindBodyPartInDictionary(car, name, out var key))
 		{
 			var part = car.CarPartInfo.BodyPartsReferences[key];
+			MelonLogger.Msg($"[PartUpdateHooks->TakeOffCarPartHook] Body part {name} (off={off}, unmounted={part.Unmounted})");
+			
+			if (!off && !part.Unmounted) // Mounting (off=false means mounting)
+			{
+				MelonLogger.Msg($"[PartUpdateHooks->TakeOffCarPartHook] Body part {name} is being mounted. Removing from inventory.");
+				MelonCoroutines.Start(RemoveMountedBodyPartFromInventory(name, carLoaderID));
+			}
+			
 			MelonCoroutines.Start(SendBodyPart(part, key, carLoaderID));
+		}
+	}
+	
+	private static IEnumerator RemoveMountedBodyPartFromInventory(string partName, int carLoaderID)
+	{
+		yield return new WaitForEndOfFrame();
+		yield return new WaitForSeconds(0.5f);
+		
+		if (GameData.Instance == null || GameData.Instance.localInventory == null)
+			yield break;
+		
+		MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Removing body part {partName} from local inventory after mount.");
+		
+		var itemsToRemove = new List<ModItem>();
+		foreach (var modItem in Player.Inventory.modItems.ToList())
+		{
+			if (modItem != null && modItem.ID == partName)
+			{
+				Item gameItem = null;
+				foreach (var invItem in GameData.Instance.localInventory.items)
+				{
+					if (invItem != null && invItem.UID == modItem.UID && invItem.ID == partName)
+					{
+						gameItem = invItem;
+						break;
+					}
+				}
+				if (gameItem != null)
+				{
+					itemsToRemove.Add(modItem);
+					break;
+				}
+			}
+		}
+		
+		if (itemsToRemove.Count == 0)
+		{
+			var groupsToRemove = new List<ModGroupItem>();
+			foreach (var modGroup in Player.Inventory.modGroupItems.ToList())
+			{
+				if (modGroup != null && modGroup.ItemList != null && modGroup.ItemList.Any(item => item != null && item.ID == partName))
+				{
+					GroupItem gameGroup = null;
+					foreach (var group in GameData.Instance.localInventory.groups)
+					{
+						if (group != null && group.UID == modGroup.UID)
+						{
+							gameGroup = group;
+							break;
+						}
+					}
+					if (gameGroup != null)
+					{
+						var matchingItem = modGroup.ItemList.FirstOrDefault(item => item != null && item.ID == partName);
+						if (matchingItem != null)
+						{
+							bool foundInGroup = false;
+							foreach (var i in gameGroup.ItemList)
+							{
+								if (i != null && i.ID == partName)
+								{
+									foundInGroup = true;
+									break;
+								}
+							}
+							if (foundInGroup)
+							{
+								groupsToRemove.Add(modGroup);
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			foreach (var modGroup in groupsToRemove)
+			{
+				Player.Inventory.modGroupItems.Remove(modGroup);
+				ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
+			}
+		}
+		else
+		{
+			foreach (var modItem in itemsToRemove)
+			{
+				Player.Inventory.modItems.Remove(modItem);
+				ClientSend.ItemPacket(modItem, InventoryAction.remove);
+			}
 		}
 	}
 
