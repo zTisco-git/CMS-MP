@@ -139,11 +139,17 @@ public static class ServerHandle
 			if (action == InventoryAction.add)
 			{
 				var isNew = !ServerData.Instance.items.ContainsKey(item.UID);
+				MelonLogger.Msg($"[ServerHandle->ItemPacket] Received item {item.ID} (UID: {item.UID}) from client {fromClient}. IsNew: {isNew}");
 				ServerData.Instance.items[item.UID] = item;
 				if (isNew)
 				{
 					SavesManager.ModSaves[SavesManager.currentSaveIndex].inventoryItemUID[fromClient - 1]++;
+					MelonLogger.Msg($"[ServerHandle->ItemPacket] Broadcasting item {item.ID} (UID: {item.UID}) to all clients.");
 					ServerSend.ItemPacket(fromClient, item, InventoryAction.add);
+				}
+				else
+				{
+					MelonLogger.Msg($"[ServerHandle->ItemPacket] Item {item.ID} (UID: {item.UID}) already exists on server, not broadcasting.");
 				}
 			}
 			else if (action == InventoryAction.remove)
