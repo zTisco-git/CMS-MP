@@ -1,6 +1,8 @@
 ﻿using System.Collections;
+using System.Linq;
 using CMS21Together.ClientSide.Data.Garage.Tools;
 using CMS21Together.ClientSide.Data.Handle;
+using CMS21Together.ClientSide.Data.Player;
 using CMS21Together.Shared.Data;
 using CMS21Together.Shared.Data.Vanilla.Cars;
 using CMS21Together.Shared.Data.Vanilla.GarageTool;
@@ -49,6 +51,35 @@ public static class PartUpdateHooks
 	{
 		if (!Client.Instance.isConnected) return;
 		MelonCoroutines.Start(HandleDoMount(__instance));
+		MelonCoroutines.Start(RemoveMountedPartFromInventory(__instance));
+	}
+
+	private static IEnumerator RemoveMountedPartFromInventory(PartScript partScript)
+	{
+		yield return new WaitForEndOfFrame();
+		yield return new WaitForSeconds(0.5f);
+		
+		if (partScript == null || GameData.Instance == null || GameData.Instance.localInventory == null)
+			yield break;
+		
+		var partID = partScript.id;
+		if (string.IsNullOrEmpty(partID))
+			yield break;
+		
+		var itemsToRemove = Inventory.modItems.Where(i => i.ID == partID).ToList();
+		foreach (var modItem in itemsToRemove)
+		{
+			Inventory.modItems.Remove(modItem);
+			ClientSend.ItemPacket(modItem, InventoryAction.remove);
+		}
+		
+		var groupsToRemove = Inventory.modGroupItems.Where(g => 
+			g.ItemList != null && g.ItemList.Any(item => item != null && item.ID == partID)).ToList();
+		foreach (var modGroup in groupsToRemove)
+		{
+			Inventory.modGroupItems.Remove(modGroup);
+			ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
+		}
 	}
 
 	private static bool AreBoltsMounted(PartScript partScript)
