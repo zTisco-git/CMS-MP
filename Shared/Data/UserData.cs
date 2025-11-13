@@ -80,6 +80,13 @@ public class UserData
 		}
 		else
 		{
+			// Vérifier si le joueur existe déjà pour éviter les doublons
+			if (userObject != null)
+			{
+				MelonLogger.Warning($"[UserData->SpawnPlayer] Player {username} (ID: {playerID}) already exists, destroying old instance.");
+				DestroyPlayer();
+			}
+			
 			userObject = Object.Instantiate(ClientData.Instance.playerPrefab, position.toVector3(), rotation.toQuaternion());
 			userObject.AddComponent<InfoBillboard>();
 			userAnimator = userObject.GetComponent<Animator>();
@@ -94,5 +101,6 @@ public class UserData
 		if (userObject == null) return;
 		Object.Destroy(userObject);
 		userObject = null;
+		userAnimator = null;
 	}
 }
