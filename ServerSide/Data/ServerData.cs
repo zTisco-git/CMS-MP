@@ -141,11 +141,6 @@ public class ServerData
 			items.Remove(item.UID);
 		}
 
-		if (itemsToRemove.Count > 0)
-		{
-			ServerSend.RemoveItemByIDPacket(0, partID);
-		}
-
 		var groupsToRemove = new List<ModGroupItem>();
 		foreach (var group in groupItems.Values)
 		{
@@ -160,10 +155,8 @@ public class ServerData
 			groupItems.Remove(group.UID);
 		}
 
-		if (groupsToRemove.Count > 0)
-		{
-			ServerSend.RemoveGroupItemByPartIDPacket(0, partID);
-		}
+		ServerSend.RemoveItemByIDPacket(0, partID);
+		ServerSend.RemoveGroupItemByPartIDPacket(0, partID);
 	}
 
 	private void UpdateEngineStand(ModPartScript partScript, bool alt)
