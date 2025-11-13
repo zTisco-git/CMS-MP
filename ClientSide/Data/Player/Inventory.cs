@@ -334,7 +334,23 @@ public static class Inventory
 			}
 		}
 
-		var itemsToRemove = modItems.Where(i => i != null && i.ID == partID).ToList();
+		var itemsToRemove = new List<ModItem>();
+		foreach (var modItem in modItems)
+		{
+			if (modItem != null)
+			{
+				if (modItem.ID == partID)
+				{
+					itemsToRemove.Add(modItem);
+					MelonLogger.Msg($"[Inventory->RemoveItemByID] Found exact match: ID={modItem.ID}");
+				}
+				else if (modItem.ID.EndsWith("-" + partID) || modItem.ID.EndsWith("_" + partID))
+				{
+					itemsToRemove.Add(modItem);
+					MelonLogger.Msg($"[Inventory->RemoveItemByID] Found match with prefix: ID={modItem.ID} ends with -{partID} or _{partID}");
+				}
+			}
+		}
 		MelonLogger.Msg($"[Inventory->RemoveItemByID] Found {itemsToRemove.Count} items in modItems to remove.");
 		
 		foreach (var modItem in itemsToRemove)
@@ -350,9 +366,17 @@ public static class Inventory
 			if (invItem != null)
 			{
 				MelonLogger.Msg($"[Inventory->RemoveItemByID] Checking game item: ID={invItem.ID}, UID={invItem.UID}");
+				// Check exact match first
 				if (invItem.ID == partID)
 				{
 					itemsToDeleteFromGame.Add(invItem);
+					MelonLogger.Msg($"[Inventory->RemoveItemByID] Found exact match in game inventory: ID={invItem.ID}");
+				}
+				// Check if the item ID ends with the partID (for body parts with car prefix)
+				else if (invItem.ID.EndsWith("-" + partID) || invItem.ID.EndsWith("_" + partID))
+				{
+					itemsToDeleteFromGame.Add(invItem);
+					MelonLogger.Msg($"[Inventory->RemoveItemByID] Found match with prefix in game inventory: ID={invItem.ID} ends with -{partID} or _{partID}");
 				}
 			}
 		}
@@ -375,8 +399,33 @@ public static class Inventory
 
 		MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Removing groups with part ID {partID} from inventory.");
 
-		var groupsToRemove = modGroupItems.Where(g => 
-			g != null && g.ItemList != null && g.ItemList.Any(item => item != null && item.ID == partID)).ToList();
+		var groupsToRemove = new List<ModGroupItem>();
+		foreach (var modGroup in modGroupItems)
+		{
+			if (modGroup != null && modGroup.ItemList != null)
+			{
+				foreach (var item in modGroup.ItemList)
+				{
+					if (item != null)
+					{
+						// Check exact match first
+						if (item.ID == partID)
+						{
+							groupsToRemove.Add(modGroup);
+							MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Found exact match in group: ID={item.ID}");
+							break;
+						}
+						// Check if the item ID ends with the partID (for body parts with car prefix)
+						else if (item.ID.EndsWith("-" + partID) || item.ID.EndsWith("_" + partID))
+						{
+							groupsToRemove.Add(modGroup);
+							MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Found match with prefix in group: ID={item.ID} ends with -{partID} or _{partID}");
+							break;
+						}
+					}
+				}
+			}
+		}
 
 		MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Found {groupsToRemove.Count} groups in modGroupItems to remove.");
 
@@ -392,10 +441,22 @@ public static class Inventory
 			{
 				foreach (var item in group.ItemList)
 				{
-					if (item != null && item.ID == partID)
+					if (item != null)
 					{
-						groupsToDeleteFromGame.Add(group);
-						break;
+						// Check exact match first
+						if (item.ID == partID)
+						{
+							groupsToDeleteFromGame.Add(group);
+							MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Found exact match in game group: ID={item.ID}");
+							break;
+						}
+						// Check if the item ID ends with the partID (for body parts with car prefix)
+						else if (item.ID.EndsWith("-" + partID) || item.ID.EndsWith("_" + partID))
+						{
+							groupsToDeleteFromGame.Add(group);
+							MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Found match with prefix in game group: ID={item.ID} ends with -{partID} or _{partID}");
+							break;
+						}
 					}
 				}
 			}
