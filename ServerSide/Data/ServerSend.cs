@@ -85,6 +85,24 @@ public static class ServerSend
 		}
 	}
 
+	public static void RemoveItemByIDPacket(int fromClient, string partID)
+	{
+		using (var packet = new Packet((int)PacketTypes.removeItemByID))
+		{
+			packet.Write(partID);
+			SendDataToAll(fromClient, packet);
+		}
+	}
+
+	public static void RemoveGroupItemByPartIDPacket(int fromClient, string partID)
+	{
+		using (var packet = new Packet((int)PacketTypes.removeGroupItemByPartID))
+		{
+			packet.Write(partID);
+			SendDataToAll(fromClient, packet);
+		}
+	}
+
 	public static void GarageCustomizationPacket(int fromClient, ModGarageCustomizationData data)
 	{
 		using (var packet = new Packet((int)PacketTypes.garageCustomization))
