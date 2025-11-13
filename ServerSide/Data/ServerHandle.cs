@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using UnityEngine;
 using System.Linq;
 using CMS21Together.ClientSide.Data;
 using CMS21Together.ClientSide.Data.Garage.Tools;
@@ -67,6 +69,16 @@ public static class ServerHandle
 		}
 		if (ServerData.Instance.garageCustomization != null)
 			ServerSend.GarageCustomizationPacketToClient(clientIdCheck, ServerData.Instance.garageCustomization);
+		
+		// Envoyer toutes les données synchronisées au nouveau joueur
+		MelonCoroutines.Start(SendResyncAfterDelay(clientIdCheck));
+	}
+	
+	private static IEnumerator SendResyncAfterDelay(int clientId)
+	{
+		// Attendre un peu pour que le client soit prêt
+		yield return new WaitForSeconds(1.0f);
+		ServerResyncs.ResyncAll(clientId);
 	}
 
 	public static void DisconnectPacket(int fromclient, Packet packet)
@@ -186,6 +198,13 @@ public static class ServerHandle
 		var data = packet.Read<ModGarageCustomizationData>();
 		ServerData.Instance.garageCustomization = data;
 		ServerSend.GarageCustomizationPacket(fromClient, data);
+	}
+
+	public static void RadioPacket(int fromClient, Packet packet)
+	{
+		var data = packet.Read<ModRadioData>();
+		ServerData.Instance.radioData = data;
+		ServerSend.RadioPacket(fromClient, data);
 	}
 
 	public static void StatPacket(int fromClient, Packet packet)
