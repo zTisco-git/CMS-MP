@@ -20,6 +20,9 @@ public class SteamConnection
 	 }
 	 public void Send(Packet packet, bool reliable=true)
 	 {
+	     if (!isConnected || connection.Id == 0)
+	         return;
+
 	     SendType type = reliable ? SendType.Reliable : SendType.Unreliable;
 
 	     byte[] data = packet.ToArray();
