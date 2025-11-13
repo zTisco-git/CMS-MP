@@ -128,6 +128,20 @@ public static class ClientHandle
 		packet.Dispose();
 	}
 
+	public static void RemoveItemByIDPacket(Packet packet)
+	{
+		var partID = packet.Read<string>();
+		MelonCoroutines.Start(Player.Inventory.RemoveItemByID(partID));
+		packet.Dispose();
+	}
+
+	public static void RemoveGroupItemByPartIDPacket(Packet packet)
+	{
+		var partID = packet.Read<string>();
+		MelonCoroutines.Start(Player.Inventory.RemoveGroupItemByPartID(partID));
+		packet.Dispose();
+	}
+
 	public static void StatPacket(Packet packet)
 	{
 		var value = packet.ReadInt();
