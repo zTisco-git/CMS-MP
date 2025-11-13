@@ -1,6 +1,7 @@
 using System;
 using System.Net.Sockets;
 using System.Threading;
+using CMS21Together.ServerSide.Data;
 using CMS21Together.Shared;
 using MelonLoader;
 
@@ -112,8 +113,7 @@ public class TCPConnection
 			var _byteLength = stream.EndRead(result);
 			if (_byteLength <= 0)
 			{
-				if (Server.Instance.clients.TryGetValue(id, out var client))
-					client.Disconnect();
+				HandleClientDisconnect();
 				return;
 			}
 
@@ -129,8 +129,24 @@ public class TCPConnection
 			if (_ex.InnerException is SocketException sockEx && sockEx.ErrorCode != 10054)
 				MelonLogger.Error($"[TCPConnection->ReceiveCallback] Error receiving TCP data: {_ex}");
 
-			if (Server.Instance.clients.TryGetValue(id, out var client)) client.Disconnect();
+			HandleClientDisconnect();
 		}
+	}
+
+	private void HandleClientDisconnect()
+	{
+		if (!Server.Instance.clients.TryGetValue(id, out var client))
+			return;
+
+		// Envoyer le packet de suppression aux autres clients avant de déconnecter
+		if (ServerData.Instance.connectedClients.ContainsKey(id))
+		{
+			MelonLogger.Msg($"[TCPConnection->HandleClientDisconnect] Client {id} disconnected (connection lost).");
+			ServerSend.PlayerRemovePacket(id);
+			ServerData.Instance.RemoveClient(id);
+		}
+
+		client.Disconnect();
 	}
 
 	private bool HandleData(byte[] data)
