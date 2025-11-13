@@ -139,7 +139,11 @@ public class ServerData
 		foreach (var item in itemsToRemove)
 		{
 			items.Remove(item.UID);
-			ServerSend.ItemPacket(0, item, InventoryAction.remove);
+		}
+
+		if (itemsToRemove.Count > 0)
+		{
+			ServerSend.RemoveItemByIDPacket(0, partID);
 		}
 
 		var groupsToRemove = new List<ModGroupItem>();
@@ -154,7 +158,11 @@ public class ServerData
 		foreach (var group in groupsToRemove)
 		{
 			groupItems.Remove(group.UID);
-			ServerSend.GroupItemPacket(0, group, InventoryAction.remove);
+		}
+
+		if (groupsToRemove.Count > 0)
+		{
+			ServerSend.RemoveGroupItemByPartIDPacket(0, partID);
 		}
 	}
 
