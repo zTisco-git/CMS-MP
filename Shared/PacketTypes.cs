@@ -56,5 +56,7 @@ public enum PacketTypes
 	parkRemove,
 	playerRemove,
 	garageCustomization,
-	radio
+	radio,
+	partLock,
+	partUnlock
 }
