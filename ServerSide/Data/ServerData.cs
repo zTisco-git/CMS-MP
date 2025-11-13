@@ -229,10 +229,6 @@ public class ServerData
 			CarPartInfo.Add(carLoaderID, new ModCarInfo());
 
 		var carInfo = CarPartInfo[carLoaderID];
-		if (carInfo.FluidsData == null)
-		{
-			carInfo.FluidsData = new ModFluidsData();
-		}
 
 		if (fluid?.CarFluid != null)
 		{
