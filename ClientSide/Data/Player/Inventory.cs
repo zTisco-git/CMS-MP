@@ -199,7 +199,15 @@ public static class Inventory
 				modItems.Add(item);
 				
 				var gameItem = item.ToGame();
-				var existingItem = GameData.Instance.localInventory.items.FirstOrDefault(i => i != null && i.UID == item.UID);
+				Item existingItem = null;
+				foreach (var invItem in GameData.Instance.localInventory.items)
+				{
+					if (invItem != null && invItem.UID == item.UID)
+					{
+						existingItem = invItem;
+						break;
+					}
+				}
 				if (existingItem != null)
 				{
 					GameData.Instance.localInventory.Delete(existingItem);
@@ -209,7 +217,15 @@ public static class Inventory
 			case InventoryAction.remove:
 				if (item == null) yield break;
 				modItems.RemoveAll(i => i.UID == item.UID);
-				var itemToDelete = GameData.Instance.localInventory.items.FirstOrDefault(i => i != null && i.UID == item.UID);
+				Item itemToDelete = null;
+				foreach (var invItem in GameData.Instance.localInventory.items)
+				{
+					if (invItem != null && invItem.UID == item.UID)
+					{
+						itemToDelete = invItem;
+						break;
+					}
+				}
 				if (itemToDelete != null)
 				{
 					GameData.Instance.localInventory.Delete(itemToDelete);
@@ -227,7 +243,15 @@ public static class Inventory
 				if (item == null) yield break;
 				modGroupItems.RemoveAll(i => i.UID == item.UID);
 				
-				var existingGroup = GameData.Instance.localInventory.groups.FirstOrDefault(g => g != null && g.UID == item.UID);
+				GroupItem existingGroup = null;
+				foreach (var group in GameData.Instance.localInventory.groups)
+				{
+					if (group != null && group.UID == item.UID)
+					{
+						existingGroup = group;
+						break;
+					}
+				}
 				if (existingGroup != null)
 				{
 					GameData.Instance.localInventory.DeleteGroup(item.UID);
@@ -238,7 +262,15 @@ public static class Inventory
 			case InventoryAction.remove:
 				if (item == null) yield break;
 				modGroupItems.RemoveAll(i => i.UID == item.UID);
-				var groupToDelete = GameData.Instance.localInventory.groups.FirstOrDefault(g => g != null && g.UID == item.UID);
+				GroupItem groupToDelete = null;
+				foreach (var group in GameData.Instance.localInventory.groups)
+				{
+					if (group != null && group.UID == item.UID)
+					{
+						groupToDelete = group;
+						break;
+					}
+				}
 				if (groupToDelete != null)
 				{
 					GameData.Instance.localInventory.DeleteGroup(item.UID);
