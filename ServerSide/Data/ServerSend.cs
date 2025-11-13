@@ -357,6 +357,9 @@ public static class ServerSend
 
 	private static void SendData(int _toClient, Packet _packet, bool reliable = true)
 	{
+		if (!Server.Instance.clients.ContainsKey(_toClient) || !Server.Instance.clients[_toClient].isConnected)
+			return;
+		
 		_packet.WriteLength();
 		Server.Instance.clients[_toClient].SendData(_packet, reliable);
 	}
@@ -364,15 +367,21 @@ public static class ServerSend
 	private static void SendDataToAll(Packet _packet, bool reliable = true)
 	{
 		_packet.WriteLength();
-		foreach (var serverClient in Server.Instance.clients) serverClient.Value.SendData(_packet, reliable);
+		foreach (var serverClient in Server.Instance.clients)
+		{
+			if (serverClient.Value.isConnected)
+				serverClient.Value.SendData(_packet, reliable);
+		}
 	}
 
 	private static void SendDataToAll(int _exceptClient, Packet _packet, bool reliable = true)
 	{
 		_packet.WriteLength();
 		foreach (var serverClient in Server.Instance.clients)
-			if (serverClient.Key != _exceptClient)
+		{
+			if (serverClient.Key != _exceptClient && serverClient.Value.isConnected)
 				serverClient.Value.SendData(_packet, reliable);
+		}
 	}
 
 	#endregion
