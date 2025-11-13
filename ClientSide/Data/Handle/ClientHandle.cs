@@ -131,6 +131,7 @@ public static class ClientHandle
 	public static void RemoveItemByIDPacket(Packet packet)
 	{
 		var partID = packet.Read<string>();
+		MelonLogger.Msg($"[ClientHandle->RemoveItemByIDPacket] Received request to remove items with ID {partID}");
 		MelonCoroutines.Start(Player.Inventory.RemoveItemByID(partID));
 		packet.Dispose();
 	}
@@ -138,6 +139,7 @@ public static class ClientHandle
 	public static void RemoveGroupItemByPartIDPacket(Packet packet)
 	{
 		var partID = packet.Read<string>();
+		MelonLogger.Msg($"[ClientHandle->RemoveGroupItemByPartIDPacket] Received request to remove groups with part ID {partID}");
 		MelonCoroutines.Start(Player.Inventory.RemoveGroupItemByPartID(partID));
 		packet.Dispose();
 	}

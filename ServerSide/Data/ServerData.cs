@@ -117,24 +117,40 @@ public class ServerData
 		}
 
 		if (oldPart != null)
+		{
 			wasUnmounted = oldPart.unmounted;
+			MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id}: oldPart.unmounted={oldPart.unmounted}, newPart.unmounted={partScript.unmounted}");
+		}
+		else
+		{
+			MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id}: oldPart is null, newPart.unmounted={partScript.unmounted}");
+		}
 
 		if (wasUnmounted && !partScript.unmounted)
 		{
+			MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id} was unmounted, now mounted. Removing from all inventories.");
 			RemovePartFromAllInventories(partScript.id);
+		}
+		else if (!wasUnmounted && partScript.unmounted)
+		{
+			MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id} was mounted, now unmounted.");
 		}
 	}
 
 	private void RemovePartFromAllInventories(string partID)
 	{
+		MelonLogger.Msg($"[ServerData->RemovePartFromAllInventories] Removing part {partID} from all inventories.");
+		
 		var itemsToRemove = new List<ModItem>();
 		foreach (var item in items.Values)
 		{
-			if (item.ID == partID)
+			if (item != null && item.ID == partID)
 			{
 				itemsToRemove.Add(item);
 			}
 		}
+
+		MelonLogger.Msg($"[ServerData->RemovePartFromAllInventories] Found {itemsToRemove.Count} items to remove from server.");
 
 		foreach (var item in itemsToRemove)
 		{
@@ -144,17 +160,20 @@ public class ServerData
 		var groupsToRemove = new List<ModGroupItem>();
 		foreach (var group in groupItems.Values)
 		{
-			if (group.ItemList != null && group.ItemList.Any(item => item != null && item.ID == partID))
+			if (group != null && group.ItemList != null && group.ItemList.Any(item => item != null && item.ID == partID))
 			{
 				groupsToRemove.Add(group);
 			}
 		}
+
+		MelonLogger.Msg($"[ServerData->RemovePartFromAllInventories] Found {groupsToRemove.Count} groups to remove from server.");
 
 		foreach (var group in groupsToRemove)
 		{
 			groupItems.Remove(group.UID);
 		}
 
+		MelonLogger.Msg($"[ServerData->RemovePartFromAllInventories] Sending RemoveItemByIDPacket and RemoveGroupItemByPartIDPacket for part {partID} to all clients.");
 		ServerSend.RemoveItemByIDPacket(0, partID);
 		ServerSend.RemoveGroupItemByPartIDPacket(0, partID);
 	}

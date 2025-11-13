@@ -71,10 +71,12 @@ public static class PartUpdateHooks
 		if (string.IsNullOrEmpty(partID))
 			yield break;
 		
+		MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedPartFromInventory] Removing part {partID} from local inventory after mount.");
+		
 		var itemsToRemove = new List<ModItem>();
 		foreach (var modItem in Player.Inventory.modItems.ToList())
 		{
-			if (modItem.ID == partID)
+			if (modItem != null && modItem.ID == partID)
 			{
 				Item gameItem = null;
 				foreach (var invItem in GameData.Instance.localInventory.items)
@@ -98,7 +100,7 @@ public static class PartUpdateHooks
 			var groupsToRemove = new List<ModGroupItem>();
 			foreach (var modGroup in Player.Inventory.modGroupItems.ToList())
 			{
-				if (modGroup.ItemList != null && modGroup.ItemList.Any(item => item != null && item.ID == partID))
+				if (modGroup != null && modGroup.ItemList != null && modGroup.ItemList.Any(item => item != null && item.ID == partID))
 				{
 					GroupItem gameGroup = null;
 					foreach (var group in GameData.Instance.localInventory.groups)

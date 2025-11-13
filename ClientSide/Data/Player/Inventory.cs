@@ -283,26 +283,33 @@ public static class Inventory
 	{
 		yield return GameData.GameReady();
 
-		if (string.IsNullOrEmpty(partID))
+		if (string.IsNullOrEmpty(partID) || GameData.Instance == null || GameData.Instance.localInventory == null)
 			yield break;
 
-		var itemsToRemove = modItems.Where(i => i.ID == partID).ToList();
+		MelonLogger.Msg($"[Inventory->RemoveItemByID] Removing items with ID {partID} from inventory.");
+
+		var itemsToRemove = modItems.Where(i => i != null && i.ID == partID).ToList();
+		MelonLogger.Msg($"[Inventory->RemoveItemByID] Found {itemsToRemove.Count} items in modItems to remove.");
+		
 		foreach (var modItem in itemsToRemove)
 		{
 			modItems.Remove(modItem);
-			Item itemToDelete = null;
-			foreach (var invItem in GameData.Instance.localInventory.items)
+		}
+
+		var itemsToDeleteFromGame = new List<Item>();
+		foreach (var invItem in GameData.Instance.localInventory.items)
+		{
+			if (invItem != null && invItem.ID == partID)
 			{
-				if (invItem != null && invItem.ID == partID && invItem.UID == modItem.UID)
-				{
-					itemToDelete = invItem;
-					break;
-				}
+				itemsToDeleteFromGame.Add(invItem);
 			}
-			if (itemToDelete != null)
-			{
-				GameData.Instance.localInventory.Delete(itemToDelete);
-			}
+		}
+
+		MelonLogger.Msg($"[Inventory->RemoveItemByID] Found {itemsToDeleteFromGame.Count} items in game inventory to delete.");
+
+		foreach (var itemToDelete in itemsToDeleteFromGame)
+		{
+			GameData.Instance.localInventory.Delete(itemToDelete);
 		}
 	}
 
@@ -310,27 +317,44 @@ public static class Inventory
 	{
 		yield return GameData.GameReady();
 
-		if (string.IsNullOrEmpty(partID))
+		if (string.IsNullOrEmpty(partID) || GameData.Instance == null || GameData.Instance.localInventory == null)
 			yield break;
 
+		MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Removing groups with part ID {partID} from inventory.");
+
 		var groupsToRemove = modGroupItems.Where(g => 
-			g.ItemList != null && g.ItemList.Any(item => item != null && item.ID == partID)).ToList();
+			g != null && g.ItemList != null && g.ItemList.Any(item => item != null && item.ID == partID)).ToList();
+
+		MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Found {groupsToRemove.Count} groups in modGroupItems to remove.");
 
 		foreach (var modGroup in groupsToRemove)
 		{
 			modGroupItems.Remove(modGroup);
-			GroupItem groupToDelete = null;
-			foreach (var group in GameData.Instance.localInventory.groups)
+		}
+
+		var groupsToDeleteFromGame = new List<GroupItem>();
+		foreach (var group in GameData.Instance.localInventory.groups)
+		{
+			if (group != null && group.ItemList != null)
 			{
-				if (group != null && group.UID == modGroup.UID)
+				foreach (var item in group.ItemList)
 				{
-					groupToDelete = group;
-					break;
+					if (item != null && item.ID == partID)
+					{
+						groupsToDeleteFromGame.Add(group);
+						break;
+					}
 				}
 			}
+		}
+
+		MelonLogger.Msg($"[Inventory->RemoveGroupItemByPartID] Found {groupsToDeleteFromGame.Count} groups in game inventory to delete.");
+
+		foreach (var groupToDelete in groupsToDeleteFromGame)
+		{
 			if (groupToDelete != null)
 			{
-				GameData.Instance.localInventory.DeleteGroup(modGroup.UID);
+				GameData.Instance.localInventory.DeleteGroup(groupToDelete.UID);
 			}
 		}
 	}
