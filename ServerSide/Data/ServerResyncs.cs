@@ -155,7 +155,7 @@ public static class ServerResyncs
 		
 		foreach (var selectedJob in ServerData.Instance.selectedJobs)
 		{
-			ServerSend.SelectedJobPacket(fromClient, selectedJob, true, true);
+			ServerSend.SelectedJobPacket(fromClient, selectedJob, true);
 		}
 		
 		MelonLogger.Msg($"[ServerResyncs->ResyncAll] All sync data sent to client {fromClient}!");
