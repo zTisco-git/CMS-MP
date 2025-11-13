@@ -85,11 +85,31 @@ public class UserData
 				DestroyPlayer();
 			}
 			
+			if (GameData.Instance == null || GameData.Instance.localPlayer == null)
+			{
+				return;
+			}
+			
 			userObject = Object.Instantiate(ClientData.Instance.playerPrefab, position.toVector3(), rotation.toQuaternion());
+			if (userObject == null)
+			{
+				MelonLogger.Error("[UserData->SpawnPlayer] Failed to instantiate player object.");
+				return;
+			}
+			
 			userObject.AddComponent<InfoBillboard>();
 			userAnimator = userObject.GetComponent<Animator>();
 			userObject.name = username;
-			Physics.IgnoreCollision(GameData.Instance.localPlayer.GetComponent<Collider>(), userObject.GetComponent<Collider>());
+			
+			if (GameData.Instance != null && GameData.Instance.localPlayer != null)
+			{
+				var localPlayerCollider = GameData.Instance.localPlayer.GetComponent<Collider>();
+				var userCollider = userObject.GetComponent<Collider>();
+				if (localPlayerCollider != null && userCollider != null)
+				{
+					Physics.IgnoreCollision(localPlayerCollider, userCollider);
+				}
+			}
 		}
 
 	}
