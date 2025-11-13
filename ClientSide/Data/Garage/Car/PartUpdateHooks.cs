@@ -322,18 +322,28 @@ public static class PartUpdateHooks
 			yield break;
 		
 		MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Removing body part {partName} from local inventory after mount.");
+		MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Current modItems count: {Player.Inventory.modItems.Count}");
+		foreach (var modItem in Player.Inventory.modItems)
+		{
+			if (modItem != null)
+			{
+				MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Checking modItem: ID={modItem.ID}, UID={modItem.UID}, matches={modItem.ID == partName}");
+			}
+		}
 		
 		var itemsToRemove = new List<ModItem>();
 		foreach (var modItem in Player.Inventory.modItems.ToList())
 		{
 			if (modItem != null && modItem.ID == partName)
 			{
+				MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Found matching modItem: ID={modItem.ID}, UID={modItem.UID}");
 				Item gameItem = null;
 				foreach (var invItem in GameData.Instance.localInventory.items)
 				{
 					if (invItem != null && invItem.UID == modItem.UID && invItem.ID == partName)
 					{
 						gameItem = invItem;
+						MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Found matching game item: ID={invItem.ID}, UID={invItem.UID}");
 						break;
 					}
 				}
@@ -342,29 +352,44 @@ public static class PartUpdateHooks
 					itemsToRemove.Add(modItem);
 					break;
 				}
+				else
+				{
+					MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] No matching game item found for modItem {modItem.ID} (UID: {modItem.UID})");
+				}
 			}
 		}
 		
 		if (itemsToRemove.Count == 0)
 		{
+			MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] No items found, checking groups. Current modGroupItems count: {Player.Inventory.modGroupItems.Count}");
 			var groupsToRemove = new List<ModGroupItem>();
 			foreach (var modGroup in Player.Inventory.modGroupItems.ToList())
 			{
-				if (modGroup != null && modGroup.ItemList != null && modGroup.ItemList.Any(item => item != null && item.ID == partName))
+				if (modGroup != null && modGroup.ItemList != null)
 				{
-					GroupItem gameGroup = null;
-					foreach (var group in GameData.Instance.localInventory.groups)
+					bool hasMatchingItem = false;
+					foreach (var item in modGroup.ItemList)
 					{
-						if (group != null && group.UID == modGroup.UID)
+						if (item != null && item.ID == partName)
 						{
-							gameGroup = group;
+							hasMatchingItem = true;
+							MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Found matching item in group: ID={item.ID}, UID={item.UID}");
 							break;
 						}
 					}
-					if (gameGroup != null)
+					
+					if (hasMatchingItem)
 					{
-						var matchingItem = modGroup.ItemList.FirstOrDefault(item => item != null && item.ID == partName);
-						if (matchingItem != null)
+						GroupItem gameGroup = null;
+						foreach (var group in GameData.Instance.localInventory.groups)
+						{
+							if (group != null && group.UID == modGroup.UID)
+							{
+								gameGroup = group;
+								break;
+							}
+						}
+						if (gameGroup != null)
 						{
 							bool foundInGroup = false;
 							foreach (var i in gameGroup.ItemList)
@@ -372,6 +397,7 @@ public static class PartUpdateHooks
 								if (i != null && i.ID == partName)
 								{
 									foundInGroup = true;
+									MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Found matching item in game group: ID={i.ID}, UID={i.UID}");
 									break;
 								}
 							}
@@ -387,6 +413,7 @@ public static class PartUpdateHooks
 			
 			foreach (var modGroup in groupsToRemove)
 			{
+				MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Removing group {modGroup.UID} from inventory.");
 				Player.Inventory.modGroupItems.Remove(modGroup);
 				ClientSend.GroupItemPacket(modGroup, InventoryAction.remove);
 			}
@@ -395,6 +422,7 @@ public static class PartUpdateHooks
 		{
 			foreach (var modItem in itemsToRemove)
 			{
+				MelonLogger.Msg($"[PartUpdateHooks->RemoveMountedBodyPartFromInventory] Removing item {modItem.ID} (UID: {modItem.UID}) from inventory.");
 				Player.Inventory.modItems.Remove(modItem);
 				ClientSend.ItemPacket(modItem, InventoryAction.remove);
 			}
