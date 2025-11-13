@@ -247,6 +247,20 @@ public static class PartUpdateHooks
 		}
 	}
 
+	[HarmonyPatch(typeof(PartScript), nameof(PartScript.Show))]
+	[HarmonyPostfix]
+	public static void ShowHook(PartScript __instance)
+	{
+		if (!Client.Instance.isConnected) return;
+		
+		if (!__instance.IsUnmounted)
+		{
+			MelonLogger.Msg($"[PartUpdateHooks->ShowHook] Part {__instance.id} is being shown (mounted). Triggering sync and inventory removal.");
+			MelonCoroutines.Start(HandleDoMount(__instance));
+			MelonCoroutines.Start(RemoveMountedPartFromInventory(__instance));
+		}
+	}
+
 	[HarmonyPatch(typeof(PartScript), nameof(PartScript.Hide))]
 	[HarmonyPostfix]
 	public static void HideHook(PartScript __instance) // best way i've found to detect when a partScript is unmounted
