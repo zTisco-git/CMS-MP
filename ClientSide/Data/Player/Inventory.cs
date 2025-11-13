@@ -278,6 +278,62 @@ public static class Inventory
 				break;
 		}
 	}
+
+	public static IEnumerator RemoveItemByID(string partID)
+	{
+		yield return GameData.GameReady();
+
+		if (string.IsNullOrEmpty(partID))
+			yield break;
+
+		var itemsToRemove = modItems.Where(i => i.ID == partID).ToList();
+		foreach (var modItem in itemsToRemove)
+		{
+			modItems.Remove(modItem);
+			Item itemToDelete = null;
+			foreach (var invItem in GameData.Instance.localInventory.items)
+			{
+				if (invItem != null && invItem.ID == partID && invItem.UID == modItem.UID)
+				{
+					itemToDelete = invItem;
+					break;
+				}
+			}
+			if (itemToDelete != null)
+			{
+				GameData.Instance.localInventory.Delete(itemToDelete);
+			}
+		}
+	}
+
+	public static IEnumerator RemoveGroupItemByPartID(string partID)
+	{
+		yield return GameData.GameReady();
+
+		if (string.IsNullOrEmpty(partID))
+			yield break;
+
+		var groupsToRemove = modGroupItems.Where(g => 
+			g.ItemList != null && g.ItemList.Any(item => item != null && item.ID == partID)).ToList();
+
+		foreach (var modGroup in groupsToRemove)
+		{
+			modGroupItems.Remove(modGroup);
+			GroupItem groupToDelete = null;
+			foreach (var group in GameData.Instance.localInventory.groups)
+			{
+				if (group != null && group.UID == modGroup.UID)
+				{
+					groupToDelete = group;
+					break;
+				}
+			}
+			if (groupToDelete != null)
+			{
+				GameData.Instance.localInventory.DeleteGroup(modGroup.UID);
+			}
+		}
+	}
 }
 
 [Serializable]
