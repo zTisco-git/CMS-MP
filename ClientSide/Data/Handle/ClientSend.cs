@@ -163,6 +163,7 @@ public class ClientSend
 
 	public static void PartScriptPacket(ModPartScript partScript, int carLoaderID)
 	{
+		MelonLogger.Msg($"[ClientSend->PartScriptPacket] Sending part {partScript.id} (unmounted={partScript.unmounted}) to server for carLoader {carLoaderID}");
 		using (var packet = new Packet((int)PacketTypes.partScript))
 		{
 			packet.Write(partScript);

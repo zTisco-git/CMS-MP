@@ -60,6 +60,8 @@ public class ServerData
 
 	public void UpdatePartScripts(ModPartScript partScript, int carLoaderID)
 	{
+		MelonLogger.Msg($"[ServerData->UpdatePartScripts] Received update for part {partScript.id} (unmounted={partScript.unmounted}) on carLoader {carLoaderID}");
+		
 		if (carLoaderID == -1 || carLoaderID == -2)
 		{
 			UpdateEngineStand(partScript, carLoaderID == -2);
@@ -124,6 +126,19 @@ public class ServerData
 		else
 		{
 			MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id}: oldPart is null, newPart.unmounted={partScript.unmounted}");
+			
+			if (!partScript.unmounted)
+			{
+				var itemExists = items.Values.Any(item => item != null && item.ID == partScript.id) ||
+				                 groupItems.Values.Any(group => group != null && group.ItemList != null && 
+				                     group.ItemList.Any(item => item != null && item.ID == partScript.id));
+				
+				if (itemExists)
+				{
+					MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id} is being mounted for the first time and exists in inventory. Removing from all inventories.");
+					RemovePartFromAllInventories(partScript.id);
+				}
+			}
 		}
 
 		if (wasUnmounted && !partScript.unmounted)

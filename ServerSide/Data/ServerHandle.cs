@@ -288,6 +288,8 @@ public static class ServerHandle
 		var partScript = packet.Read<ModPartScript>();
 		var carLoaderID = packet.ReadInt();
 
+		MelonLogger.Msg($"[ServerHandle->PartScriptPacket] Received part {partScript.id} (unmounted={partScript.unmounted}) from client {fromClient} for carLoader {carLoaderID}");
+		
 		ServerData.Instance.UpdatePartScripts(partScript, carLoaderID);
 		ServerSend.PartScriptPacket(fromClient, partScript, carLoaderID);
 	}

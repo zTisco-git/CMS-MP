@@ -7,7 +7,15 @@ public static class CustomPartScriptMethod
 {
 	public static IEnumerator ShowMounted(PartScript partScript) // avoid gamemode change when mounting piece
 	{
+		var wasUnmounted = partScript.IsUnmounted;
 		partScript.IsUnmounted = false;
+		
+		if (wasUnmounted && Client.Instance.isConnected)
+		{
+			MelonLogger.Msg($"[CustomPartScriptMethod->ShowMounted] Part {partScript.id} was unmounted, now mounting. Triggering sync.");
+			MelonCoroutines.Start(PartUpdateHooks.SyncPartAfterMount(partScript));
+		}
+		
 		if (partScript.ShouldUnmountWith())
 			foreach (var item in partScript.unmountWith)
 				item.MountByGroup(true);

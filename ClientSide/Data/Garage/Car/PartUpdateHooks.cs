@@ -52,6 +52,7 @@ public static class PartUpdateHooks
 	public static void DoMountHook(PartScript __instance)
 	{
 		if (!Client.Instance.isConnected) return;
+		MelonLogger.Msg($"[PartUpdateHooks->DoMountHook] Hook triggered for part {__instance.id} (IsUnmounted={__instance.IsUnmounted})");
 		MelonCoroutines.Start(HandleDoMount(__instance));
 		MelonCoroutines.Start(RemoveMountedPartFromInventory(__instance));
 	}
@@ -162,6 +163,45 @@ public static class PartUpdateHooks
 			}
 
 		return allMounted;
+	}
+
+	public static IEnumerator SyncPartAfterMount(PartScript partScript)
+	{
+		yield return new WaitForEndOfFrame();
+		yield return new WaitForSeconds(0.1f);
+		
+		if (partScript == null || partScript.IsUnmounted)
+			yield break;
+			
+		MelonLogger.Msg($"[PartUpdateHooks->SyncPartAfterMount] Syncing part {partScript.id} after mount.");
+		
+		if (partScript.GetComponentInParent<CarLoaderOnCar>())
+		{
+			var carLoaderID = partScript.GetComponentInParent<CarLoaderOnCar>().CarLoader.gameObject.name[10] - '0' - 1;
+			var car = ClientData.Instance.loadedCars[carLoaderID];
+
+			if (FindPartInDictionaries(car, partScript, out var partType, out var key, out var index))
+				MelonCoroutines.Start(SendPartUpdate(car, carLoaderID, key, index, partType));
+			else
+				MelonLogger.Warning("[PartUpdateHooks->SyncPartAfterMount] PartScript not found in any dictionary.");
+		}
+		else
+		{
+			ModEngineStand stand;
+			if (EngineStand.useAlt)
+				stand = ClientData.Instance.engineStand2;
+			else
+				stand = ClientData.Instance.engineStand;
+			foreach (var kvp in stand.partReferences)
+			{
+				if (kvp.Value == partScript)
+				{
+					MelonLogger.Msg($"Sending part:{partScript.id} , {kvp.Key}.");
+					MelonCoroutines.Start(SendPartUpdate(null, EngineStand.useAlt ? -2 : -1, kvp.Key, null, ModPartType.engineStand));
+					break;
+				}
+			}
+		}
 	}
 
 	private static IEnumerator HandleDoMount(PartScript partScript)
@@ -344,14 +384,21 @@ public static class PartUpdateHooks
 				yield break;
 		}
 
+		if (part == null)
+		{
+			MelonLogger.Warning($"[PartUpdateHooks->SendPartUpdate] Part is null for key={key}, index={index}, type={partType}");
+			yield break;
+		}
+
 		yield return new WaitForEndOfFrame();
 
-		if (index.HasValue && partType != ModPartType.engineStand)
-			ClientSend.PartScriptPacket(new ModPartScript(part, key, index.Value, partType), carLoaderID);
-		else if (partType != ModPartType.engineStand)
-			ClientSend.PartScriptPacket(new ModPartScript(part, key, -1, partType), carLoaderID);
-		else
-			ClientSend.PartScriptPacket(new ModPartScript(part, key, -1, partType), carLoaderID);
+		var modPart = index.HasValue && partType != ModPartType.engineStand
+			? new ModPartScript(part, key, index.Value, partType)
+			: new ModPartScript(part, key, -1, partType);
+		
+		MelonLogger.Msg($"[PartUpdateHooks->SendPartUpdate] Sending part {modPart.id} (unmounted={modPart.unmounted}) to server for carLoader {carLoaderID}");
+		
+		ClientSend.PartScriptPacket(modPart, carLoaderID);
 	}
 
 	public static IEnumerator SendBodyPart(CarPart part, int key, int carLoaderID)
