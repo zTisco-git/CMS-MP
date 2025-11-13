@@ -93,7 +93,10 @@ public class ClientSteam : ConnectionManager
 
     public void Send(Packet _packet, bool reliable)
     {
-        SendType sendType = reliable ? SendType.Reliable : SendType.Unreliable; // Reliable=TCP , Unrealiable=UDP
+        if (!Connected || Connection.Id == 0)
+            return;
+
+        SendType sendType = reliable ? SendType.Reliable : SendType.Unreliable;
         Result res = Connection.SendMessage(SteamworksUtils.ConvertByteArrayToIntPtr(_packet.ToArray()), _packet.Length(), sendType);
         if(res != Result.OK)
             MelonLogger.Error($"[ClientSteam->SendData] Issue while sending data:{res}");
