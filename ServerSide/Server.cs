@@ -229,6 +229,7 @@ public class Server
 			{ (int)PacketTypes.newJob, ServerHandle.JobPacket },
 			{ (int)PacketTypes.jobAction, ServerHandle.JobActionPacket },
 			{ (int)PacketTypes.selectedJob, ServerHandle.SelectedJobPacket },
+			{ (int)PacketTypes.jobUpdate, ServerHandle.JobUpdatePacket },
 			{ (int)PacketTypes.endJob, ServerHandle.EndJobPacket }
 		};
 	}
