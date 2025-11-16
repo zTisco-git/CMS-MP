@@ -558,13 +558,36 @@ public static class PartUpdateHooks
 		if (GameData.Instance == null || GameData.Instance.orderGenerator == null)
 			return;
 
+		Job targetJob = null;
+
 		foreach (var job in GameData.Instance.orderGenerator.selectedJobs)
 		{
 			if (job != null && job.carLoaderID == carLoaderID)
 			{
-				ClientSend.JobUpdatePacket(new ModJob(job));
+				targetJob = job;
 				break;
 			}
 		}
+
+		if (targetJob == null)
+		{
+			foreach (var job in GameData.Instance.orderGenerator.jobs)
+			{
+				if (job != null && job.carLoaderID == carLoaderID)
+				{
+					targetJob = job;
+					break;
+				}
+			}
+		}
+
+		if (targetJob == null)
+		{
+			MelonLogger.Msg($"[PartUpdateHooks->SyncJobProgressForCar] No job found for carLoaderID {carLoaderID}, cannot send JobUpdate.");
+			return;
+		}
+
+		MelonLogger.Msg($"[PartUpdateHooks->SyncJobProgressForCar] Sending JobUpdate for jobID {targetJob.id}, carLoaderID {carLoaderID}.");
+		ClientSend.JobUpdatePacket(new ModJob(targetJob));
 	}
 }
