@@ -213,18 +213,28 @@ public class ClientSend
 			SendData(packet);
 		}
 	}
-
+	
 	public static void JobActionPacket(ModJob job, bool takeJob)
 	{
 		using (var packet = new Packet((int)PacketTypes.jobAction))
 		{
 			packet.Write(job);
 			packet.Write(takeJob);
-
+			
 			SendData(packet);
 		}
 	}
-
+	
+	public static void JobUpdatePacket(ModJob job)
+	{
+		using (var packet = new Packet((int)PacketTypes.jobUpdate))
+		{
+			packet.Write(job);
+			
+			SendData(packet);
+		}
+	}
+	
 	public static void SelectedJobPacket(ModJob job, bool action)
 	{
 		using (var packet = new Packet((int)PacketTypes.selectedJob))
