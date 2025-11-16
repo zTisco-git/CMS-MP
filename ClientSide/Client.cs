@@ -134,6 +134,7 @@ public class Client
 			{ (int)PacketTypes.newJob, ClientHandle.JobPacket },
 			{ (int)PacketTypes.jobAction, ClientHandle.JobActionPacket },
 			{ (int)PacketTypes.selectedJob, ClientHandle.SelectedJobPacket },
+			{ (int)PacketTypes.jobUpdate, ClientHandle.JobUpdatePacket },
 			{ (int)PacketTypes.endJob, ClientHandle.EndJobPacket }
 		};
 	}
