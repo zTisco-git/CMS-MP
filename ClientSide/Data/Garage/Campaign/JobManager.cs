@@ -63,6 +63,53 @@ public static class JobManager
 		MelonLogger.Msg($"Should have added a Mision! {newJob.id} , {newJob.IsMission}");
 	}
 
+	public static IEnumerator UpdateJob(ModJob job)
+	{
+		while (!ClientData.GameReady)
+			yield return new WaitForSeconds(0.25f);
+		yield return new WaitForEndOfFrame();
+
+		if (job == null || GameData.Instance == null || GameData.Instance.orderGenerator == null)
+			yield break;
+
+		var updated = job.ToGame();
+
+		for (var i = 0; i < GameData.Instance.orderGenerator.jobs.Count; i++)
+		{
+			if (GameData.Instance.orderGenerator.jobs[i].id == updated.id)
+			{
+				GameData.Instance.orderGenerator.jobs[i].jobTasks = updated.jobTasks;
+				GameData.Instance.orderGenerator.jobs[i].IsCompleted = updated.IsCompleted;
+				GameData.Instance.orderGenerator.jobs[i].oilLevel = updated.oilLevel;
+				GameData.Instance.orderGenerator.jobs[i].TaskBonus = updated.TaskBonus;
+				GameData.Instance.orderGenerator.jobs[i].JobBonus = updated.JobBonus;
+				GameData.Instance.orderGenerator.jobs[i].TotalPayout = updated.TotalPayout;
+				GameData.Instance.orderGenerator.jobs[i].MoneySpent = updated.MoneySpent;
+				GameData.Instance.orderGenerator.jobs[i].MoneySpentWithDifficultyMod = updated.MoneySpentWithDifficultyMod;
+				break;
+			}
+		}
+
+		for (var i = 0; i < GameData.Instance.orderGenerator.selectedJobs.Count; i++)
+		{
+			if (GameData.Instance.orderGenerator.selectedJobs[i].id == updated.id)
+			{
+				GameData.Instance.orderGenerator.selectedJobs[i].jobTasks = updated.jobTasks;
+				GameData.Instance.orderGenerator.selectedJobs[i].IsCompleted = updated.IsCompleted;
+				GameData.Instance.orderGenerator.selectedJobs[i].oilLevel = updated.oilLevel;
+				GameData.Instance.orderGenerator.selectedJobs[i].TaskBonus = updated.TaskBonus;
+				GameData.Instance.orderGenerator.selectedJobs[i].JobBonus = updated.JobBonus;
+				GameData.Instance.orderGenerator.selectedJobs[i].TotalPayout = updated.TotalPayout;
+				GameData.Instance.orderGenerator.selectedJobs[i].MoneySpent = updated.MoneySpent;
+				GameData.Instance.orderGenerator.selectedJobs[i].MoneySpentWithDifficultyMod = updated.MoneySpentWithDifficultyMod;
+				break;
+			}
+		}
+
+		// Rafraîchit l'UI des jobs
+		UIManager.Get().UpdateJobs(GameData.Instance.orderGenerator.jobs, null);
+	}
+
 	public static IEnumerator JobAction(ModJob modJob, bool takeJob)
 	{
 		while (!ClientData.GameReady)
