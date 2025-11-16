@@ -226,6 +226,9 @@ public class ServerData
 
 	public void AddJob(ModJob job)
 	{
+		if (job == null)
+			return;
+
 		jobs.Add(job);
 	}
 
@@ -234,6 +237,16 @@ public class ServerData
 		var job = jobs.Find(j => j.id == jobID);
 		if (job != null)
 			jobs.Remove(job);
+	}
+
+	public void UpdateJob(ModJob job)
+	{
+		if (job == null)
+			return;
+
+		var existing = jobs.Find(j => j.id == job.id);
+		if (existing != null)
+			jobs[jobs.IndexOf(existing)] = job;
 	}
 
 	public void SetLoadJobCar(ModCar carData)
