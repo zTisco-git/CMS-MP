@@ -362,6 +362,14 @@ public static class ServerHandle
 		ServerSend.JobPacket(fromClient, job);
 	}
 
+	public static void JobUpdatePacket(int fromClient, Packet packet)
+	{
+		var job = packet.Read<ModJob>();
+
+		ServerData.Instance.UpdateJob(job);
+		ServerSend.JobUpdatePacket(fromClient, job);
+	}
+	
 	public static void JobActionPacket(int fromClient, Packet packet)
 	{
 		ModJob job = packet.Read<ModJob>();
