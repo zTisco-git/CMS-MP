@@ -254,6 +254,16 @@ public static class ServerSend
 		}
 	}
 
+	public static void JobUpdatePacket(int fromClient, ModJob job)
+	{
+		using (var packet = new Packet((int)PacketTypes.jobUpdate))
+		{
+			packet.Write(job);
+
+			SendDataToAll(fromClient, packet);
+		}
+	}
+
 	public static void JobActionPacket(int fromClient, ModJob job, bool takeJob)
 	{
 		using (var packet = new Packet((int)PacketTypes.jobAction))
