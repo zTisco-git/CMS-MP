@@ -29,6 +29,7 @@ public static class PartUpdateHooks
 		{
 			int carLoaderID = __instance.Oil.CarFluid.GetComponentInParent<CarLoaderOnCar>().CarLoader.gameObject.name[10] - '0' - 1;
 			ClientSend.CarFluid(carLoaderID, new ModFluidData(__instance.Oil));
+			SyncJobProgressForCar(carLoaderID);
 		}
 
 	}
@@ -43,6 +44,7 @@ public static class PartUpdateHooks
 		{
 			int carLoaderID = __instance.CarFluid.GetComponentInParent<CarLoaderOnCar>().CarLoader.gameObject.name[10] - '0' - 1;
 			ClientSend.CarFluid(carLoaderID, new ModFluidData(__instance));
+			SyncJobProgressForCar(carLoaderID);
 		}
 
 	}
@@ -545,5 +547,23 @@ public static class PartUpdateHooks
 		yield return new WaitForEndOfFrame();
 
 		ClientSend.BodyPartPacket(new ModCarPart(part, key, carLoaderID), carLoaderID);
+	}
+
+	private static void SyncJobProgressForCar(int carLoaderID)
+	{
+		if (!Client.Instance.isConnected)
+			return;
+
+		if (GameData.Instance == null || GameData.Instance.orderGenerator == null)
+			return;
+
+		foreach (var job in GameData.Instance.orderGenerator.selectedJobs)
+		{
+			if (job != null && job.carLoaderID == carLoaderID)
+			{
+				ClientSend.JobUpdatePacket(new ModJob(job));
+				break;
+			}
+		}
 	}
 }
