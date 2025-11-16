@@ -550,7 +550,7 @@ public static class PartUpdateHooks
 		ClientSend.BodyPartPacket(new ModCarPart(part, key, carLoaderID), carLoaderID);
 	}
 
-	private static void SyncJobProgressForCar(int carLoaderID)
+	public static void SyncJobProgressForCar(int carLoaderID)
 	{
 		if (!Client.Instance.isConnected)
 			return;
