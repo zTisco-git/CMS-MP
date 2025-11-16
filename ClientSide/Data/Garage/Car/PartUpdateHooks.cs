@@ -8,6 +8,7 @@ using CMS21Together.Shared.Data;
 using CMS21Together.Shared.Data.Vanilla;
 using CMS21Together.Shared.Data.Vanilla.Cars;
 using CMS21Together.Shared.Data.Vanilla.GarageTool;
+using CMS21Together.Shared.Data.Vanilla.Jobs;
 using HarmonyLib;
 using MelonLoader;
 using UnityEngine;
