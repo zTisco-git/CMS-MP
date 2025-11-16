@@ -338,6 +338,13 @@ public static class ClientHandle
 		MelonCoroutines.Start(JobManager.AddJob(job));
 	}
 
+public static void JobUpdatePacket(Packet packet)
+{
+	var job = packet.Read<ModJob>();
+		
+	MelonCoroutines.Start(JobManager.UpdateJob(job));
+}
+
 	public static void JobActionPacket(Packet packet)
 	{
 		ModJob job = packet.Read<ModJob>();
