@@ -126,27 +126,13 @@ public class ServerData
 		else
 		{
 			MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id}: oldPart is null, newPart.unmounted={partScript.unmounted}");
-			
-			if (!partScript.unmounted)
-			{
-				var itemExists = items.Values.Any(item => item != null && item.ID == partScript.id) ||
-				                 groupItems.Values.Any(group => group != null && group.ItemList != null && 
-				                     group.ItemList.Any(item => item != null && item.ID == partScript.id));
-				
-				if (itemExists)
-				{
-					MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id} is being mounted for the first time and exists in inventory. Removing from all inventories.");
-					RemovePartFromAllInventories(partScript.id);
-				}
-			}
 		}
 
-		if (wasUnmounted && !partScript.unmounted)
-		{
-			MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id} was unmounted, now mounted. Removing from all inventories.");
-			RemovePartFromAllInventories(partScript.id);
-		}
-		else if (!wasUnmounted && partScript.unmounted)
+		// NOTE:
+		// We n'utilisons plus RemovePartFromAllInventories ici.
+		// La suppression d'un item (vente, montage, etc.) doit passer par les packets d'inventaire
+		// explicites (ItemPacket remove) envoyés par le client qui effectue l'action.
+		if (!wasUnmounted && partScript.unmounted)
 		{
 			MelonLogger.Msg($"[ServerData->UpdatePartScripts] Part {partScript.id} was mounted, now unmounted.");
 		}
@@ -219,27 +205,16 @@ public class ServerData
 		else
 		{
 			MelonLogger.Msg($"[ServerData->UpdateBodyParts] Body part {carPart.name}: oldPart is null, newPart.unmounted={carPart.unmounted}");
-			
-			if (!carPart.unmounted)
-			{
-				var itemExists = items.Values.Any(item => item != null && item.ID == carPart.name) ||
-				                 groupItems.Values.Any(group => group != null && group.ItemList != null && 
-				                     group.ItemList.Any(item => item != null && item.ID == carPart.name));
-				
-				if (itemExists)
-				{
-					MelonLogger.Msg($"[ServerData->UpdateBodyParts] Body part {carPart.name} is being mounted for the first time and exists in inventory. Removing from all inventories.");
-					RemovePartFromAllInventories(carPart.name);
-				}
-			}
 		}
 		
 		carInfos.BodyPartsReferences[carPart.carPartID] = carPart;
 		
+		// Comme pour les pièces mécaniques, on ne force plus la suppression globale par ID
+		// lorsqu'une pièce de carrosserie est montée. Les clients doivent envoyer un remove
+		// d'inventaire explicite lorsqu'ils vendent / consomment la pièce.
 		if (wasUnmounted && !carPart.unmounted)
 		{
-			MelonLogger.Msg($"[ServerData->UpdateBodyParts] Body part {carPart.name} was unmounted, now mounted. Removing from all inventories.");
-			RemovePartFromAllInventories(carPart.name);
+			MelonLogger.Msg($"[ServerData->UpdateBodyParts] Body part {carPart.name} was unmounted, now mounted.");
 		}
 	}
 
