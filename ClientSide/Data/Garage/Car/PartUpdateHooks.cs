@@ -30,6 +30,7 @@ public static class PartUpdateHooks
 		{
 			int carLoaderID = __instance.Oil.CarFluid.GetComponentInParent<CarLoaderOnCar>().CarLoader.gameObject.name[10] - '0' - 1;
 			ClientSend.CarFluid(carLoaderID, new ModFluidData(__instance.Oil));
+			RecalculateJobForCar(carLoaderID);
 			SyncJobProgressForCar(carLoaderID);
 		}
 
@@ -45,6 +46,7 @@ public static class PartUpdateHooks
 		{
 			int carLoaderID = __instance.CarFluid.GetComponentInParent<CarLoaderOnCar>().CarLoader.gameObject.name[10] - '0' - 1;
 			ClientSend.CarFluid(carLoaderID, new ModFluidData(__instance));
+			RecalculateJobForCar(carLoaderID);
 			SyncJobProgressForCar(carLoaderID);
 		}
 
@@ -548,6 +550,41 @@ public static class PartUpdateHooks
 		yield return new WaitForEndOfFrame();
 
 		ClientSend.BodyPartPacket(new ModCarPart(part, key, carLoaderID), carLoaderID);
+	}
+
+	private static void RecalculateJobForCar(int carLoaderID)
+	{
+		if (GameData.Instance == null || GameData.Instance.orderGenerator == null || GameData.Instance.carLoaders == null)
+			return;
+
+		if (carLoaderID < 0 || carLoaderID >= GameData.Instance.carLoaders.Length)
+			return;
+
+		var carLoader = GameData.Instance.carLoaders[carLoaderID];
+		if (carLoader == null)
+			return;
+
+		var orderGenerator = GameData.Instance.orderGenerator;
+
+		for (var i = 0; i < orderGenerator.selectedJobs.Count; i++)
+		{
+			var job = orderGenerator.selectedJobs[i];
+			if (job != null && job.carLoaderID == carLoaderID)
+			{
+				JobHelper.CheckJob(carLoader, ref job);
+				orderGenerator.selectedJobs[i] = job;
+			}
+		}
+
+		for (var i = 0; i < orderGenerator.jobs.Count; i++)
+		{
+			var job = orderGenerator.jobs[i];
+			if (job != null && job.carLoaderID == carLoaderID)
+			{
+				JobHelper.CheckJob(carLoader, ref job);
+				orderGenerator.jobs[i] = job;
+			}
+		}
 	}
 
 	public static void SyncJobProgressForCar(int carLoaderID)
